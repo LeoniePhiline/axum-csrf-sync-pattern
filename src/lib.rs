@@ -85,9 +85,13 @@ impl IntoResponse for CsrfError {
 ///
 /// Requires and uses `axum_sessions`.
 ///
-/// TODO: Optionally removes the token from the session after successful verification,
+/// Optionally regenerates the token from the session after successful verification,
 /// to ensure a new token is used for each writing (`POST`, `PUT`, `DELETE`) request.
-/// TODO: Needs a layer for configuration.
+/// Enable with [`RegenerateToken::PerUse`].
+///
+/// For maximum security, but severely reduced ergonomics, optionally regenerates the
+/// token from the session after each request, to keep the token validity as short as
+/// possible. Enable with [`RegenerateToken::PerRequest`].
 #[derive(Debug, Clone)]
 pub struct CsrfProtect<S> {
     inner: S,
