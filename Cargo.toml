@@ -1,0 +1,17 @@
+[package]
+name = "axum-csrf-sync-pattern"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-session = "3.0.0"
+axum = "0.5.17"
+axum-sessions = "0.3.2"
+base64 = "0.13.1"
+http = "0.2.8"
+rand = "0.8.5"
+tokio = { version = "1.21.2", features = ["macros", "rt", "rt-multi-thread"] }
+tower = "0.4.13"
+tracing = "0.1.37"
