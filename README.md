@@ -86,7 +86,7 @@ These examples are interactive demos. Run them, then interact with them in the b
 ### Same-site usage
 
 **Note:** The crate repository contains example projects for same-site and cross-site usage!
-In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000] in your browser.
+In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser.
 
 Configure your session and CSRF protection layer in your backend application:
 
@@ -141,9 +141,7 @@ Receive the token and send same-site requests, using your custom header:
 ```javascript
 const test = async () => {
   // Receive CSRF token (Default response header name: 'X-CSRF-TOKEN')
-  const token = (await fetch("/")).headers.get(
-    "X-Custom-Response-Header"
-  );
+  const token = (await fetch("/")).headers.get("X-Custom-Response-Header");
 
   // Submit data using the token
   await fetch("/", {
@@ -161,12 +159,12 @@ const test = async () => {
 ```
 
 For a full demo, run the [same-site example project](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/tree/main/examples/same-site).
-You will find the interactive demo at [http://127.0.0.1:3000];
+You will find the interactive demo at [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 ### CORS-enabled usage
 
 **Note:** The crate repository contains example projects for same-site and cross-site usage!
-In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000] in your browser.
+In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser.
 
 Configure your CORS layer, session and CSRF protection layer in your backend application:
 
@@ -242,7 +240,7 @@ const test = async () => {
 ```
 
 For a full demo, run the [cross-site example project](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/tree/main/examples/cross-site).
-You will find the interactive demo at [http://127.0.0.1:3000];
+You will find the interactive demo at [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 ## Contributing
 
