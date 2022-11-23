@@ -155,6 +155,8 @@ const test = async () => {
 };
 ```
 
+For a full demo, have a look at the [same-site example project](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/tree/main/examples/same-site).
+
 ### CORS-enabled usage
 
 **Note:** The crate repository contains example projects for same-site and cross-site usage!
@@ -227,6 +229,8 @@ const test = async () => {
   });
 };
 ```
+
+For a full demo, have a look at the [cross-site example project](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/tree/main/examples/cross-site).
 
 ## Contributing
 
