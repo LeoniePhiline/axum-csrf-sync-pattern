@@ -1,12 +1,15 @@
 [package]
 name = "axum-csrf-sync-pattern"
+authors = ["LeoniePhiline <awoo@posteo.de>"]
 description = "An axum layer and middleware, providing Cross Site Request Forgery protection by implementing the CSRF Synchronizer Token Pattern for same-site and cross-site API requests, as described by OWASP."
 keywords = ["axum", "CSRF", "security", "middleware"]
 categories = ["web-programming", "web-programming::http-server"]
-authors = ["LeoniePhiline <awoo@posteo.de>"]
 repository = "https://github.com/LeoniePhiline/axum-csrf-sync-pattern"
+homepage = "https://github.com/LeoniePhiline/axum-csrf-sync-pattern"
 license = "Apache-2.0"
 license-file = "LICENSE"
+readme = "README.md"
+
 version = "0.1.0"
 edition = "2021"
 
