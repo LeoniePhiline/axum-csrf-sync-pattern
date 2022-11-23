@@ -77,7 +77,7 @@
 //!
 //! Configure your session and CSRF protection layer in your backend application:
 //!
-//! ```
+//! ```rust
 //! use rand::RngCore;
 //!
 //! let mut secret = [0; 64];
@@ -146,7 +146,7 @@
 //!
 //! Configure your CORS layer, session and CSRF protection layer in your backend application:
 //!
-//! ```
+//! ```rust
 //! use rand::RngCore;
 //!
 //! let mut secret = [0; 64];
@@ -208,7 +208,6 @@
 //!     });
 //! };
 //! ```
-//!
 //!
 //! ## Contributing
 //!
