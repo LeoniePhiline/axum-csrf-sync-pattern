@@ -1,12 +1,3 @@
-#![forbid(unsafe_code, future_incompatible)]
-#![deny(
-    missing_debug_implementations,
-    nonstandard_style,
-    missing_docs,
-    unreachable_pub,
-    missing_copy_implementations,
-    unused_qualifications
-)]
 //! # Axum Synchronizer Token Pattern CSRF prevention
 //!
 //! This crate provides a CSRF protection layer and middleware for use with the [axum](https://docs.rs/axum/) web framework.
@@ -77,6 +68,8 @@
 //! The layer and middleware functionality is tested. View the the module source code to learn more.
 //!
 //! ## Usage
+//!
+//! See the [example projects](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/tree/main/examples/) for same-site and cross-site usage.
 //!
 //! ### Same-site usage
 //!
@@ -221,6 +214,16 @@
 //!
 //! Pull requests are welcome!
 //!
+
+#![forbid(unsafe_code, future_incompatible)]
+#![deny(
+    missing_debug_implementations,
+    nonstandard_style,
+    missing_docs,
+    unreachable_pub,
+    missing_copy_implementations,
+    unused_qualifications
+)]
 
 use std::{
     convert::Infallible,

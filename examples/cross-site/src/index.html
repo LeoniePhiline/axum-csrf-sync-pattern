@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Same-Site Example</title>
+        <title>Cross-Site Example</title>
         <script type="text/javascript">
             const postRequest = async (token) => {
                 const output = document.getElementById('post-response-status');
@@ -12,12 +12,14 @@
                 output.textContent = 'Sending...';
 
                 // Submit data using the token
-                const response = await fetch('/', {
+                const response = await fetch('http://127.0.0.1:4000/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         ...(token ? {'X-CSRF-TOKEN': token} : {}),
                     },
+                    // Instruct the browser to allow sending the session cookie to the recipient host.
+                    credentials: 'include',
                     body: JSON.stringify({ /* ... */ }),
                 });
 
@@ -34,7 +36,9 @@
             window.addEventListener('DOMContentLoaded', async () => {
                 // Receive CSRF token
                 const output = document.getElementById('csrf-token');
-                const response = await fetch('/');
+                const response = await fetch('http://127.0.0.1:4000/', {
+                    credentials: 'include',
+                });
 
                 // Extract CSRF token from response header - to use later.
                 const token = response.headers.get('X-CSRF-TOKEN');
@@ -74,7 +78,7 @@
         </style>
     </head>
     <body>
-        <h1>Same-Site Example</h1>
+        <h1>Cross-Site Example</h1>
 
         <h2>CSRF token</h2>
         <output id="csrf-token">Loading...</output>
