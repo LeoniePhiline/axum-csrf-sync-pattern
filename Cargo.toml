@@ -10,7 +10,6 @@ async-session = "3.0.0"
 axum = "0.5.17"
 axum-sessions = "0.3.2"
 base64 = "0.13.1"
-http = "0.2.8"
 rand = "0.8.5"
 thiserror = "1.0.37"
 tokio = { version = "1.21.2", features = ["macros", "rt", "rt-multi-thread"] }

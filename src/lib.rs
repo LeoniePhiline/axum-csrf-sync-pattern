@@ -88,8 +88,8 @@
 //! let mut secret = [0; 64];
 //! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 //!
-//! async fn handler() -> http::StatusCode {
-//!     http::StatusCode::OK
+//! async fn handler() -> axum::http::StatusCode {
+//!     axum::http::StatusCode::OK
 //! }
 //!
 //! let app = axum::Router::new()
@@ -120,7 +120,7 @@
 //! # use tower::util::ServiceExt;
 //! # tokio_test::block_on(async {
 //! #     app.oneshot(
-//! #         http::Request::builder().body(axum::body::Body::empty()).unwrap()
+//! #         axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
 //! #     ).await.unwrap();
 //! # })
 //! ```
@@ -153,8 +153,8 @@
 //! let mut secret = [0; 64];
 //! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 //!
-//! async fn handler() -> http::StatusCode {
-//!     http::StatusCode::OK
+//! async fn handler() -> axum::http::StatusCode {
+//!     axum::http::StatusCode::OK
 //! }
 //!
 //! let app = axum::Router::new()
@@ -172,8 +172,8 @@
 //!     .layer(
 //!         tower_http::cors::CorsLayer::new()
 //!             .allow_origin(tower_http::cors::AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
-//!             .allow_methods([http::Method::GET, http::Method::POST])
-//!             .allow_headers([http::header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
+//!             .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
+//!             .allow_headers([axum::http::header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
 //!             .allow_credentials(true)
 //!             .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
 //!    );
@@ -183,7 +183,7 @@
 //! # use tower::util::ServiceExt;
 //! # tokio_test::block_on(async {
 //! #     app.oneshot(
-//! #         http::Request::builder().body(axum::body::Body::empty()).unwrap()
+//! #         axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
 //! #     ).await.unwrap();
 //! # })
 //! ```
@@ -222,9 +222,11 @@ use std::{
 };
 
 use async_session::Session;
-use axum::response::{IntoResponse, Response};
+use axum::{
+    http::{self, HeaderValue, Request, StatusCode},
+    response::{IntoResponse, Response},
+};
 use axum_sessions::SessionHandle;
-use http::{HeaderValue, Request, StatusCode};
 use rand::RngCore;
 use tokio::sync::RwLockWriteGuard;
 use tower::Layer;
