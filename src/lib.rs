@@ -78,37 +78,40 @@
 //! Configure your session and CSRF protection layer in your backend application:
 //!
 //! ```rust
+//! use async_session::MemoryStore;
+//! use axum::{
+//!     body::Body,
+//!     http::StatusCode,
+//!     routing::{get, Router},
+//! };
+//! use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+//! use axum_sessions::SessionLayer;
 //! use rand::RngCore;
 //!
 //! let mut secret = [0; 64];
 //! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 //!
-//! async fn handler() -> axum::http::StatusCode {
-//!     axum::http::StatusCode::OK
+//! async fn handler() -> StatusCode {
+//!     StatusCode::OK
 //! }
 //!
-//! let app = axum::Router::new()
-//!     .route("/", axum::routing::get(handler).post(handler))
+//! let app = Router::new()
+//!     .route("/", get(handler).post(handler))
 //!     .layer(
-//!         axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer::default()
+//!         CsrfSynchronizerTokenLayer::default()
 //!
 //!         // Optionally, configure the layer with the following options:
 //!
 //!         // Default: RegenerateToken::PerSession
-//!         .regenerate(axum_csrf_sync_pattern::RegenerateToken::PerUse)
+//!         .regenerate(RegenerateToken::PerUse)
 //!         // Default: "X-CSRF-TOKEN"
-//!         .request_header("X-Custom-CSRF-Token-Client-Request-Header")
+//!         .request_header("X-Custom-Request-Header")
 //!         // Default: "X-CSRF-TOKEN"
-//!         .response_header("X-Custom-CSRF-Token-Server-Response-Header")
+//!         .response_header("X-Custom-Response-Header")
 //!         // Default: "_csrf_token"
-//!         .session_key("_custom_csrf_token_session_key")
+//!         .session_key("_custom_session_key")
 //!     )
-//!     .layer(
-//!         axum_sessions::SessionLayer::new(
-//!             async_session::MemoryStore::new(),
-//!             &secret
-//!         )
-//!     );
+//!     .layer(SessionLayer::new(MemoryStore::new(), &secret));
 //!
 //! // Use hyper to run `app` as service and expose on a local port or socket.
 //!
@@ -125,7 +128,7 @@
 //! ```javascript
 //! const test = async () => {
 //!     // Receive CSRF token (Default response header name: 'X-CSRF-TOKEN')
-//!     const token = (await fetch('/')).headers.get('X-Custom-CSRF-Token-Server-Response-Header');
+//!     const token = (await fetch('/')).headers.get('X-Custom-Response-Header');
 //!
 //!     // Submit data using the token
 //!     await fetch('/', {
@@ -133,7 +136,7 @@
 //!         headers: {
 //!            'Content-Type': 'application/json',
 //!            // Default request header name: 'X-CSRF-TOKEN'
-//!            'X-Custom-CSRF-Token-Client-Request-Header': token,
+//!            'X-Custom-Request-Header': token,
 //!         },
 //!         body: JSON.stringify({ /* ... */ }),
 //!     });
@@ -147,32 +150,36 @@
 //! Configure your CORS layer, session and CSRF protection layer in your backend application:
 //!
 //! ```rust
+//! use async_session::MemoryStore;
+//! use axum::{
+//!     body::Body,
+//!     http::{header, Method, StatusCode},
+//!     routing::{get, Router},
+//! };
+//! use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+//! use axum_sessions::SessionLayer;
 //! use rand::RngCore;
+//! use tower_http::cors::{AllowOrigin, CorsLayer};
 //!
 //! let mut secret = [0; 64];
 //! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 //!
-//! async fn handler() -> axum::http::StatusCode {
-//!     axum::http::StatusCode::OK
+//! async fn handler() -> StatusCode {
+//!     StatusCode::OK
 //! }
 //!
-//! let app = axum::Router::new()
-//!     .route("/", axum::routing::get(handler).post(handler))
+//! let app = Router::new()
+//!     .route("/", get(handler).post(handler))
 //!     .layer(
 //!         // See example above for custom layer configuration.
-//!         axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer::default()
+//!         CsrfSynchronizerTokenLayer::default()
 //!     )
+//!     .layer(SessionLayer::new(MemoryStore::new(), &secret))
 //!     .layer(
-//!         axum_sessions::SessionLayer::new(
-//!             async_session::MemoryStore::new(),
-//!             &secret
-//!         )
-//!     )
-//!     .layer(
-//!         tower_http::cors::CorsLayer::new()
-//!             .allow_origin(tower_http::cors::AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
-//!             .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
-//!             .allow_headers([axum::http::header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
+//!         CorsLayer::new()
+//!             .allow_origin(AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
+//!             .allow_methods([Method::GET, Method::POST])
+//!             .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
 //!             .allow_credentials(true)
 //!             .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
 //!    );

@@ -1,9 +1,17 @@
+use std::net::SocketAddr;
+
+use async_session::MemoryStore;
 use axum::{
     http::{header, Method, StatusCode},
     response::IntoResponse,
+    routing::{get, Router},
+    Server,
 };
+use axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer;
+use axum_sessions::SessionLayer;
 use color_eyre::eyre::{self, eyre, WrapErr};
 use rand::RngCore;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -17,7 +25,7 @@ async fn main() -> eyre::Result<()> {
         .wrap_err("Failed to initialize tracing-subscriber.")?;
 
     let frontend = async {
-        let app = axum::Router::new().route("/", axum::routing::get(index));
+        let app = Router::new().route("/", get(index));
 
         // Visit "http://127.0.0.1:3000/" in your browser.
         serve(app, 3000).await;
@@ -27,16 +35,13 @@ async fn main() -> eyre::Result<()> {
         let mut secret = [0; 64];
         rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 
-        let app = axum::Router::new()
-            .route("/", axum::routing::get(get_token).post(post_handler))
-            .layer(axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer::default())
-            .layer(axum_sessions::SessionLayer::new(
-                async_session::MemoryStore::new(),
-                &secret,
-            ))
+        let app = Router::new()
+            .route("/", get(get_token).post(post_handler))
+            .layer(CsrfSynchronizerTokenLayer::default())
+            .layer(SessionLayer::new(MemoryStore::new(), &secret))
             .layer(
-                tower_http::cors::CorsLayer::new()
-                    .allow_origin(tower_http::cors::AllowOrigin::list([
+                CorsLayer::new()
+                    .allow_origin(AllowOrigin::list([
                         // Allow CORS requests from our frontend.
                         "http://127.0.0.1:3000".parse().unwrap(),
                     ]))
@@ -44,7 +49,7 @@ async fn main() -> eyre::Result<()> {
                     .allow_methods([Method::GET, Method::POST])
                     .allow_headers([
                         // Allow incoming CORS requests to use the Content-Type header,
-                        axum::http::header::CONTENT_TYPE,
+                        header::CONTENT_TYPE,
                         // as well as the `CsrfSynchronizerTokenLayer` default request header.
                         "X-CSRF-TOKEN".parse().unwrap(),
                     ])
@@ -63,9 +68,9 @@ async fn main() -> eyre::Result<()> {
     Ok(())
 }
 
-async fn serve(app: axum::Router, port: u16) {
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], port));
-    axum::Server::bind(&addr)
+async fn serve(app: Router, port: u16) {
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();

@@ -1,7 +1,12 @@
+use async_session::MemoryStore;
 use axum::{
     http::{header, StatusCode},
     response::IntoResponse,
+    routing::get,
+    Server,
 };
+use axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer;
+use axum_sessions::SessionLayer;
 use color_eyre::eyre::{self, eyre, WrapErr};
 use rand::RngCore;
 
@@ -20,15 +25,12 @@ async fn main() -> eyre::Result<()> {
     rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
 
     let app = axum::Router::new()
-        .route("/", axum::routing::get(index).post(handler))
-        .layer(axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer::default())
-        .layer(axum_sessions::SessionLayer::new(
-            async_session::MemoryStore::new(),
-            &secret,
-        ));
+        .route("/", get(index).post(handler))
+        .layer(CsrfSynchronizerTokenLayer::default())
+        .layer(SessionLayer::new(MemoryStore::new(), &secret));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
@@ -44,6 +46,6 @@ async fn index() -> impl IntoResponse {
     )
 }
 
-async fn handler() -> axum::http::StatusCode {
+async fn handler() -> StatusCode {
     StatusCode::ACCEPTED
 }
