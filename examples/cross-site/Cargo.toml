@@ -1,5 +1,5 @@
 [package]
-name = "same-site"
+name = "cross-site"
 authors = ["LeoniePhiline <awoo@posteo.de>"]
 version = "0.1.0"
 edition = "2021"
