@@ -93,9 +93,9 @@ Configure your session and CSRF protection layer in your backend application:
 ```rust
 use async_session::MemoryStore;
 use axum::{
- body::Body,
- http::StatusCode,
- routing::{get, Router},
+    body::Body,
+    http::StatusCode,
+    routing::{get, Router},
 };
 use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
 use axum_sessions::SessionLayer;
