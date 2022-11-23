@@ -80,6 +80,8 @@
 //!
 //! ### Same-site usage
 //!
+//! **Note:** The crate repository contains example projects for same-site and cross-site usage!
+//!
 //! Configure your session and CSRF protection layer in your backend application:
 //!
 //! ```
@@ -128,22 +130,26 @@
 //! Receive the token and send same-site requests, using your custom header:
 //!
 //! ```javascript
-//! // Receive CSRF token (Default response header name: 'X-CSRF-TOKEN')
-//! const token = (await fetch('/')).headers.get('X-Custom-CSRF-Token-Server-Response-Header');
+//! const test = async () => {
+//!     // Receive CSRF token (Default response header name: 'X-CSRF-TOKEN')
+//!     const token = (await fetch('/')).headers.get('X-Custom-CSRF-Token-Server-Response-Header');
 //!
-//! // Submit data using the token
-//! await fetch('/' {
-//!     method: 'POST',
-//!     headers: {
-//!        'Content-Type': 'application/json',
-//!        // Default request header name: 'X-CSRF-TOKEN'
-//!        'X-Custom-CSRF-Token-Client-Request-Header': token,
-//!     },
-//!     body: JSON.stringify({ /* ... */ }),
-//! });
+//!     // Submit data using the token
+//!     await fetch('/', {
+//!         method: 'POST',
+//!         headers: {
+//!            'Content-Type': 'application/json',
+//!            // Default request header name: 'X-CSRF-TOKEN'
+//!            'X-Custom-CSRF-Token-Client-Request-Header': token,
+//!         },
+//!         body: JSON.stringify({ /* ... */ }),
+//!     });
+//! };
 //! ```
 //!
 //! ### CORS-enabled usage
+//!
+//! **Note:** The crate repository contains example projects for same-site and cross-site usage!
 //!
 //! Configure your CORS layer, session and CSRF protection layer in your backend application:
 //!
@@ -191,21 +197,23 @@
 //! Receive the token and send cross-site requests, using your custom header:
 //!
 //! ```javascript
-//! // Receive CSRF token
-//! const token = (await fetch('https://backend.example.com/', {
-//!     credentials: 'include',
-//! })).headers.get('X-CSRF-TOKEN');
+//! const test = async () => {
+//!     // Receive CSRF token
+//!     const token = (await fetch('https://backend.example.com/', {
+//!         credentials: 'include',
+//!     })).headers.get('X-CSRF-TOKEN');
 //!
-//! // Submit data using the token
-//! await fetch('https://backend.example.com/' {
-//!     method: 'POST',
-//!     headers: {
-//!        'Content-Type': 'application/json',
-//!        'X-CSRF-TOKEN': token,
-//!     },
-//!     credentials: 'include',
-//!     body: JSON.stringify({ /* ... */ }),
-//! });
+//!     // Submit data using the token
+//!     await fetch('https://backend.example.com/', {
+//!         method: 'POST',
+//!         headers: {
+//!            'Content-Type': 'application/json',
+//!            'X-CSRF-TOKEN': token,
+//!         },
+//!         credentials: 'include',
+//!         body: JSON.stringify({ /* ... */ }),
+//!     });
+//! };
 //! ```
 //!
 //!

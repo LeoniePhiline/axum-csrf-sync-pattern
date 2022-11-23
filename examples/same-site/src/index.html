@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Same-Site Example</title>
+        <script type="text/javascript">
+            const postRequest = async (token) => {
+                const output = document.getElementById('post-response-status');
+
+                output.textContent = 'Sending...';
+
+                // Submit data using the token
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? {'X-CSRF-TOKEN': token} : {}),
+                    },
+                    body: JSON.stringify({ /* ... */ }),
+                });
+
+                output.textContent = `${response.status} ${response.statusText}`;
+            };
+
+            window.addEventListener('DOMContentLoaded', async () => {
+                // Receive CSRF token
+                const token = (await fetch('/')).headers.get('X-CSRF-TOKEN');
+                document.getElementById('csrf-token').textContent = token;
+
+                document.getElementById('post-with-token').addEventListener('click', async () => postRequest(token));
+                document.getElementById('post-without-token').addEventListener('click', async () => postRequest());
+            });
+        </script>
+        <style type="text/css">
+            output {
+                background-color: gray;
+                border: 1px solid black;
+                color: black;
+                display: block;
+                font-family: monospace;
+                margin-block: 1.5rem;
+                min-height: 1em;
+                min-width: 44ch;
+                padding: 1rem;
+                width: min-content;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>CSRF token</h1>
+        <output id="csrf-token">Loading...</output>
+        <h1>Use the token to submit</h1>
+        <button id="post-with-token">Send POST request using CSRF token</button>
+        <button id="post-without-token">Send POST request without CSRF token</button>
+        <output id="post-response-status"></output>
+    </body>
+</html>
