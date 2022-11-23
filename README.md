@@ -123,12 +123,12 @@ let app = axum::Router::new()
 
 // Use hyper to run `app` as service and expose on a local port or socket.
 
-# use tower::util::ServiceExt;
-# tokio_test::block_on(async {
-#     app.oneshot(
-#         axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
-#     ).await.unwrap();
-# })
+use tower::util::ServiceExt;
+tokio_test::block_on(async {
+    app.oneshot(
+        axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
+    ).await.unwrap();
+})
 ```
 
 Receive the token and send same-site requests, using your custom header:
@@ -194,12 +194,12 @@ let app = axum::Router::new()
 
 // Use hyper to run `app` as service and expose on a local port or socket.
 
-# use tower::util::ServiceExt;
-# tokio_test::block_on(async {
-#     app.oneshot(
-#         axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
-#     ).await.unwrap();
-# })
+use tower::util::ServiceExt;
+tokio_test::block_on(async {
+    app.oneshot(
+        axum::http::Request::builder().body(axum::body::Body::empty()).unwrap()
+    ).await.unwrap();
+})
 ```
 
 Receive the token and send cross-site requests, using your custom header:
