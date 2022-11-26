@@ -888,4 +888,27 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
     }
+
+    #[tokio::test]
+    async fn missing_session_layer_error_response() {
+        let app = Router::new()
+            .route("/", get(handler))
+            .layer(CsrfSynchronizerTokenLayer::default());
+
+        let response = app
+            .oneshot(Request::builder().body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[tokio::test]
+    async fn invalid_token_str_error_response() {
+        let layer = CsrfSynchronizerTokenLayer::default();
+        let response = Response::builder().status(StatusCode::OK).body(axum::body::boxed(Body::empty())).unwrap();
+        let response = layer.response_with_token(response, "\n");        
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
 }
