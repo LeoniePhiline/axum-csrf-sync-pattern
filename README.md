@@ -6,6 +6,11 @@ This crate provides a Cross-Site Request Forgery protection layer and middleware
 
 The middleware implements the [CSRF Synchronizer Token Pattern](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern)
 for AJAX backends and API endpoints as described in the OWASP CSRF prevention cheat sheet.
+## Installation
+
+```toml
+axum-csrf-sync-pattern = "0.1.3"
+```
 
 ## Examples
 
