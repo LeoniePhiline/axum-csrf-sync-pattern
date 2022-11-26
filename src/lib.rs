@@ -905,8 +905,11 @@ mod tests {
     #[tokio::test]
     async fn invalid_token_str_error_response() {
         let layer = CsrfSynchronizerTokenLayer::default();
-        let response = Response::builder().status(StatusCode::OK).body(axum::body::boxed(Body::empty())).unwrap();
-        let response = layer.response_with_token(response, "\n");        
+        let response = Response::builder()
+            .status(StatusCode::OK)
+            .body(axum::body::boxed(Body::empty()))
+            .unwrap();
+        let response = layer.response_with_token(response, "\n");
 
         assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
     }
