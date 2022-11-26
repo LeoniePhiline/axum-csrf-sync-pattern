@@ -22,7 +22,9 @@ async fn main() -> eyre::Result<()> {
         .wrap_err("Failed to initialize tracing-subscriber.")?;
 
     let mut secret = [0; 64];
-    rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+    rand::thread_rng()
+        .try_fill_bytes(&mut secret)
+        .wrap_err("Failed to generate session seed.")?;
 
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
@@ -30,10 +32,15 @@ async fn main() -> eyre::Result<()> {
         .layer(SessionLayer::new(MemoryStore::new(), &secret));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
-    Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    Server::try_bind(
+        &"0.0.0.0:3000"
+            .parse()
+            .wrap_err("Failed to parse socket address.")?,
+    )
+    .wrap_err("Could not bind to network address.")?
+    .serve(app.into_make_service())
+    .await
+    .wrap_err("Failed to serve the app.")?;
 
     Ok(())
 }
