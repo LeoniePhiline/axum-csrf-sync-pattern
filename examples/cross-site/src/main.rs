@@ -28,12 +28,16 @@ async fn main() -> eyre::Result<()> {
         let app = Router::new().route("/", get(index));
 
         // Visit "http://127.0.0.1:3000/" in your browser.
-        serve(app, 3000).await;
+        serve(app, 3000).await?;
+
+        Ok::<(), eyre::Report>(())
     };
 
     let backend = async {
         let mut secret = [0; 64];
-        rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+        rand::thread_rng()
+            .try_fill_bytes(&mut secret)
+            .wrap_err("Failed to generate session seed.")?;
 
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
@@ -43,7 +47,9 @@ async fn main() -> eyre::Result<()> {
                 CorsLayer::new()
                     .allow_origin(AllowOrigin::list([
                         // Allow CORS requests from our frontend.
-                        "http://127.0.0.1:3000".parse().unwrap(),
+                        "http://127.0.0.1:3000"
+                            .parse()
+                            .wrap_err("Failed to parse socket address.")?,
                     ]))
                     // Allow GET and POST methods. Adjust to your needs.
                     .allow_methods([Method::GET, Method::POST])
@@ -51,29 +57,38 @@ async fn main() -> eyre::Result<()> {
                         // Allow incoming CORS requests to use the Content-Type header,
                         header::CONTENT_TYPE,
                         // as well as the `CsrfSynchronizerTokenLayer` default request header.
-                        "X-CSRF-TOKEN".parse().unwrap(),
+                        "X-CSRF-TOKEN"
+                            .parse()
+                            .wrap_err("Failed to parse token header.")?,
                     ])
                     // Allow CORS requests with session cookies.
                     .allow_credentials(true)
                     // Instruct the browser to allow JavaScript on the configured origin
                     // to read the `CsrfSynchronizerTokenLayer` default response header.
-                    .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
+                    .expose_headers(["X-CSRF-TOKEN"
+                        .parse()
+                        .wrap_err("Failed to parse token header.")?]),
             );
 
-        serve(app, 4000).await;
+        serve(app, 4000).await?;
+
+        Ok::<(), eyre::Report>(())
     };
 
-    tokio::join!(frontend, backend);
+    tokio::try_join!(frontend, backend)?;
 
     Ok(())
 }
 
-async fn serve(app: Router, port: u16) {
+async fn serve(app: Router, port: u16) -> eyre::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    Server::bind(&addr)
+    Server::try_bind(&addr)
+        .wrap_err("Could not bind to network address.")?
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .wrap_err("Failed to serve the app.")?;
+
+    Ok(())
 }
 
 async fn index() -> impl IntoResponse {
