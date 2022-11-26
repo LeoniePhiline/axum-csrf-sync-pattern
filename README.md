@@ -1,5 +1,7 @@
 # Axum Synchronizer Token Pattern CSRF prevention
 
+[crates.io](https://crates.io/crates/axum-csrf-sync-pattern) - [docs.rs](https://docs.rs/axum-csrf-sync-pattern/)
+
 This crate provides a Cross-Site Request Forgery protection layer and middleware for use with the [axum](https://docs.rs/axum/) web framework.
 
 The middleware implements the [CSRF Synchronizer Token Pattern](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern)
