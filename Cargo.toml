@@ -16,7 +16,6 @@ edition = "2021"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-async-session = "3.0.0"
 axum = "0.5.17"
 axum-sessions = "0.3.2"
 base64 = "0.13.1"

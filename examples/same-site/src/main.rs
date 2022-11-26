@@ -1,4 +1,3 @@
-use async_session::MemoryStore;
 use axum::{
     http::{header, StatusCode},
     response::IntoResponse,
@@ -6,7 +5,7 @@ use axum::{
     Server,
 };
 use axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer;
-use axum_sessions::SessionLayer;
+use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
 use rand::RngCore;
 

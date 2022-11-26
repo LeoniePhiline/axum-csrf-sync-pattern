@@ -6,7 +6,6 @@ edition = "2021"
 publish = false
 
 [dependencies]
-async-session = "3.0.0"
 axum = "0.5.17"
 axum-csrf-sync-pattern = { path = "../../" }
 axum-sessions = "0.3.2"

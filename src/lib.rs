@@ -238,12 +238,11 @@ use std::{
     task::{Context, Poll},
 };
 
-use async_session::Session;
 use axum::{
     http::{self, HeaderValue, Request, StatusCode},
     response::{IntoResponse, Response},
 };
-use axum_sessions::SessionHandle;
+use axum_sessions::{async_session::Session, SessionHandle};
 use rand::RngCore;
 use tokio::sync::RwLockWriteGuard;
 use tower::Layer;
@@ -381,7 +380,7 @@ enum Error {
     Rng(#[from] rand::Error),
 
     #[error("Serde JSON error")]
-    Serde(#[from] async_session::serde_json::Error),
+    Serde(#[from] axum_sessions::async_session::serde_json::Error),
 
     #[error("Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the CsrfSynchronizerTokenLayer?")]
     SessionLayerMissing,
