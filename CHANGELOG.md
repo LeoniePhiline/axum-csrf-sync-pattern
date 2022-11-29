@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2022-11-29
+
+### Added
+
+- Added support for `axum` 0.6, `axum-core` 0.3 and `axum-sessions` 0.4.
+
+### Changed
+
+- Shortened middleware and layer names to `CsrfMiddleware` and `CsrfLayer`
+  for improved DX and more elegant code.
+
+  **Migration:** If you prefer to keep on using the old name(s) in your code base,
+  the import them with an alias:
+
+  ```rust
+  use axum_csrf_sync_pattern::CsrfLayer as CsrfSynchronizerTokenLayer;
+
+  // If you import the middleware:
+  use axum_csrf_sync_pattern::CsrfMiddleware as CsrfSynchronizerTokenMiddleware;
+  ```
+
+- Re-licensed the project under Mozilla Public License 2.0,
+  allowing for commercial use, while inciting contributions.
+- Updated `tokio` from 1.21 to 1.22.
+
+### Removed
+
+- Removed support for `axum` 0.5, `axum-core` 0.2 and `axum-sessions` 0.3.
+
 ## [0.1.4] - 2022-11-29
 
 ### Added
@@ -50,7 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...HEAD
+[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...0.2.0
 [0.1.4]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.3...0.1.4
 [0.1.3]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.2...0.1.3
 [0.1.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.1...0.1.2
