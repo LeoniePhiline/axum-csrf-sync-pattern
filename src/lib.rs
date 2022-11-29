@@ -540,7 +540,7 @@ mod tests {
     use std::convert::Infallible;
 
     use axum::{
-        body::{Body, HttpBody},
+        body::Body,
         routing::get,
         Router,
     };
@@ -568,7 +568,7 @@ mod tests {
         SessionLayer::new(MemoryStore::new(), &secret)
     }
 
-    fn app<B: HttpBody + Send + 'static>(csrf_layer: CsrfSynchronizerTokenLayer) -> Router<B> {
+    fn app(csrf_layer: CsrfSynchronizerTokenLayer) -> Router {
         Router::new()
             .route("/", get(handler).post(handler))
             .layer(csrf_layer)

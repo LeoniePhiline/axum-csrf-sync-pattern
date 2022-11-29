@@ -28,9 +28,9 @@ This middleware implements token transfer via [custom request headers](https://c
 
 The middleware requires and is built upon [`axum_sessions`](https://docs.rs/axum-sessions/), which in turn uses [`async_session`](https://docs.rs/async-session/).
 
-The current version is built for and works with `axum 0.5.x`, `axum-sessions 0.3.x` and `async_session 3.x`.
+The current version is built for and works with `axum 0.6.x`, `axum-sessions 0.4.x` and `async_session 3.x`.
 
-There will be support for `axum 0.6` and later versions.
+There will be support for `axum 0.7` and later versions.
 
 The [Same Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) prevents the custom request header to be set by foreign scripts.
 
