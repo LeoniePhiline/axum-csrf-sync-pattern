@@ -101,14 +101,13 @@ In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000
 Configure your session and CSRF protection layer in your backend application:
 
 ```rust
-use async_session::MemoryStore;
 use axum::{
     body::Body,
     http::StatusCode,
     routing::{get, Router},
 };
 use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
-use axum_sessions::SessionLayer;
+use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use rand::RngCore;
 
 let mut secret = [0; 64];
@@ -179,14 +178,13 @@ In each example directory, execute `cargo run`, then open [http://127.0.0.1:3000
 Configure your CORS layer, session and CSRF protection layer in your backend application:
 
 ```rust
-use async_session::MemoryStore;
 use axum::{
     body::Body,
     http::{header, Method, StatusCode},
     routing::{get, Router},
 };
 use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
-use axum_sessions::SessionLayer;
+use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use rand::RngCore;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
