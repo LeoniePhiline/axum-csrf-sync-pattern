@@ -13,7 +13,7 @@ More information about this crate can be found in the [crate documentation][docs
 ## Installation
 
 ```toml
-axum-csrf-sync-pattern = "0.1.4"
+axum-csrf-sync-pattern = "0.2.0"
 ```
 
 ## Examples
