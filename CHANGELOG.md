@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2022-11-29
+
 ### Added
 
 - Tested code coverage and added tests covering the error path.
@@ -21,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Rewrote example / demo projects to never panic, but use appropriate error handling instead.
 - Removed direct dependency on `async-session`, using the re-export from `axum-sessions` instead.
-
-### Fixed
 
 ## [0.1.3] - 2022-11-24
 
@@ -50,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.3...HEAD
+[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...HEAD
+[0.1.4]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.3...0.1.4
 [0.1.3]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.2...0.1.3
 [0.1.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.1...0.1.2
 [0.1.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.0...0.1.1
