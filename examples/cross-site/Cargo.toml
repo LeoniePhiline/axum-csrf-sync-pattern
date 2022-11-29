@@ -11,7 +11,7 @@ axum-csrf-sync-pattern = { path = "../../" }
 axum-sessions = "0.3.2"
 color-eyre = "0.6.2"
 rand = "0.8.5"
-tokio = { version = "1.21.2", features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { version = "1.22.0", features = ["macros", "rt", "rt-multi-thread"] }
 tower = "0.4.13"
 tower-http = { version = "0.3.4", features = ["cors"] }
 tracing-subscriber = "0.3.16"
