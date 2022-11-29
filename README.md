@@ -107,7 +107,7 @@ use axum::{
     http::StatusCode,
     routing::{get, Router},
 };
-use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use rand::RngCore;
 
@@ -121,7 +121,7 @@ async fn handler() -> StatusCode {
 let app = Router::new()
  .route("/", get(handler).post(handler))
  .layer(
-     CsrfSynchronizerTokenLayer::new()
+     CsrfLayer::new()
 
      // Optionally, configure the layer with the following options:
 
@@ -184,7 +184,7 @@ use axum::{
     http::{header, Method, StatusCode},
     routing::{get, Router},
 };
-use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use rand::RngCore;
 use tower_http::cors::{AllowOrigin, CorsLayer};
@@ -200,7 +200,7 @@ let app = Router::new()
  .route("/", get(handler).post(handler))
  .layer(
      // See example above for custom layer configuration.
-     CsrfSynchronizerTokenLayer::new()
+     CsrfLayer::new()
  )
  .layer(SessionLayer::new(MemoryStore::new(), &secret))
  .layer(

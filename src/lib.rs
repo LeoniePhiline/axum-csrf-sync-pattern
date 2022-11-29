@@ -83,7 +83,7 @@
 //!     http::StatusCode,
 //!     routing::{get, Router},
 //! };
-//! use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+//! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use axum_sessions::{async_session::MemoryStore, SessionLayer};
 //! use rand::RngCore;
 //!
@@ -97,7 +97,7 @@
 //! let app = Router::new()
 //!     .route("/", get(handler).post(handler))
 //!     .layer(
-//!         CsrfSynchronizerTokenLayer::new()
+//!         CsrfLayer::new()
 //!
 //!         // Optionally, configure the layer with the following options:
 //!
@@ -154,7 +154,7 @@
 //!     http::{header, Method, StatusCode},
 //!     routing::{get, Router},
 //! };
-//! use axum_csrf_sync_pattern::{CsrfSynchronizerTokenLayer, RegenerateToken};
+//! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use axum_sessions::{async_session::MemoryStore, SessionLayer};
 //! use rand::RngCore;
 //! use tower_http::cors::{AllowOrigin, CorsLayer};
@@ -170,7 +170,7 @@
 //!     .route("/", get(handler).post(handler))
 //!     .layer(
 //!         // See example above for custom layer configuration.
-//!         CsrfSynchronizerTokenLayer::new()
+//!         CsrfLayer::new()
 //!     )
 //!     .layer(SessionLayer::new(MemoryStore::new(), &secret))
 //!     .layer(
@@ -243,12 +243,12 @@ use rand::RngCore;
 use tokio::sync::RwLockWriteGuard;
 use tower::Layer;
 
-/// Use `CsrfSynchronizerTokenLayer::new()` to provide the middleware and configuration to axum's service stack.
+/// Use `CsrfLayer::new()` to provide the middleware and configuration to axum's service stack.
 ///
 /// Use the provided methods to configure details, such as when tokens are regenerated, what request and response
 /// headers should be named, and under which key the token should be stored in the session.
 #[derive(Clone, Copy, Debug)]
-pub struct CsrfSynchronizerTokenLayer {
+pub struct CsrfLayer {
     /// Configures when tokens are regenerated: Per session, per use or per request. See [`RegenerateToken`] for details.
     pub regenerate_token: RegenerateToken,
 
@@ -264,7 +264,7 @@ pub struct CsrfSynchronizerTokenLayer {
     pub session_key: &'static str,
 }
 
-impl Default for CsrfSynchronizerTokenLayer {
+impl Default for CsrfLayer {
     fn default() -> Self {
         Self {
             regenerate_token: Default::default(),
@@ -275,7 +275,7 @@ impl Default for CsrfSynchronizerTokenLayer {
     }
 }
 
-impl CsrfSynchronizerTokenLayer {
+impl CsrfLayer {
     /// Create a new CSRF synchronizer token layer to inject into your middleware stack using
     /// [`axum::Router::layer()`].
     pub fn new() -> Self {
@@ -338,15 +338,15 @@ impl CsrfSynchronizerTokenLayer {
     }
 }
 
-impl<S> Layer<S> for CsrfSynchronizerTokenLayer {
-    type Service = CsrfSynchronizerTokenMiddleware<S>;
+impl<S> Layer<S> for CsrfLayer {
+    type Service = CsrfMiddleware<S>;
 
     fn layer(&self, inner: S) -> Self::Service {
-        CsrfSynchronizerTokenMiddleware::new(inner, *self)
+        CsrfMiddleware::new(inner, *self)
     }
 }
 
-/// This enum is used with [`CsrfSynchronizerTokenLayer::regenerate`] to determine
+/// This enum is used with [`CsrfLayer::regenerate`] to determine
 /// at which occurences the CSRF token should be regenerated.
 ///
 /// You could understand these options as modes to choose a level of paranoia, depending on your application's requirements.
@@ -384,7 +384,7 @@ enum Error {
     #[error("Serde JSON error")]
     Serde(#[from] axum_sessions::async_session::serde_json::Error),
 
-    #[error("Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the CsrfSynchronizerTokenLayer?")]
+    #[error("Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?")]
     SessionLayerMissing,
 
     #[error("Incoming CSRF token header was not valid ASCII")]
@@ -401,7 +401,7 @@ impl IntoResponse for Error {
     }
 }
 
-/// This middleware is created by axum by applying the `CsrfSynchronizerTokenLayer`.
+/// This middleware is created by axum by applying the `CsrfLayer`.
 /// It verifies the CSRF token header on incoming requests, regenerates tokens as configured,
 /// and attaches the current token to the outgoing response.
 ///
@@ -424,26 +424,26 @@ impl IntoResponse for Error {
 /// token from the session after each request, to keep the token validity as short as
 /// possible. Enable with [`RegenerateToken::PerRequest`].
 #[derive(Debug, Clone)]
-pub struct CsrfSynchronizerTokenMiddleware<S> {
+pub struct CsrfMiddleware<S> {
     inner: S,
-    layer: CsrfSynchronizerTokenLayer,
+    layer: CsrfLayer,
 }
 
-impl<S> CsrfSynchronizerTokenMiddleware<S> {
-    /// Create a new middleware from an inner [`tower::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfSynchronizerTokenLayer`].
+impl<S> CsrfMiddleware<S> {
+    /// Create a new middleware from an inner [`tower::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfLayer`].
     /// Commonly, the middleware is created by the [`tower::Layer`] - and never manually.
-    pub fn new(inner: S, layer: CsrfSynchronizerTokenLayer) -> Self {
-        CsrfSynchronizerTokenMiddleware { inner, layer }
+    pub fn new(inner: S, layer: CsrfLayer) -> Self {
+        CsrfMiddleware { inner, layer }
     }
 
     /// Create a new CSRF synchronizer token layer.
-    /// Equivalent to calling [`CsrfSynchronizerTokenLayer::new()`].
-    pub fn layer() -> CsrfSynchronizerTokenLayer {
-        CsrfSynchronizerTokenLayer::default()
+    /// Equivalent to calling [`CsrfLayer::new()`].
+    pub fn layer() -> CsrfLayer {
+        CsrfLayer::default()
     }
 }
 
-impl<S, B: Send + 'static> tower::Service<Request<B>> for CsrfSynchronizerTokenMiddleware<S>
+impl<S, B: Send + 'static> tower::Service<Request<B>> for CsrfMiddleware<S>
 where
     S: tower::Service<Request<B>, Response = Response, Error = Infallible> + Send + Clone + 'static,
     S::Future: Send,
@@ -539,11 +539,7 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use axum::{
-        body::Body,
-        routing::get,
-        Router,
-    };
+    use axum::{body::Body, routing::get, Router};
     use axum_core::response::{IntoResponse, Response};
     use axum_sessions::{async_session::MemoryStore, extractors::ReadableSession, SessionLayer};
     use http::{
@@ -568,7 +564,7 @@ mod tests {
         SessionLayer::new(MemoryStore::new(), &secret)
     }
 
-    fn app(csrf_layer: CsrfSynchronizerTokenLayer) -> Router {
+    fn app(csrf_layer: CsrfLayer) -> Router {
         Router::new()
             .route("/", get(handler).post(handler))
             .layer(csrf_layer)
@@ -582,10 +578,7 @@ mod tests {
             .body(Body::empty())
             .unwrap();
 
-        let response = app(CsrfSynchronizerTokenLayer::new())
-            .oneshot(request)
-            .await
-            .unwrap();
+        let response = app(CsrfLayer::new()).oneshot(request).await.unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
 
@@ -599,10 +592,7 @@ mod tests {
             .method(Method::POST)
             .body(Body::empty())
             .unwrap();
-        let response = app(CsrfSynchronizerTokenLayer::new())
-            .oneshot(request)
-            .await
-            .unwrap();
+        let response = app(CsrfLayer::new()).oneshot(request).await.unwrap();
 
         assert_eq!(response.status(), StatusCode::FORBIDDEN);
 
@@ -613,8 +603,7 @@ mod tests {
 
     #[tokio::test]
     async fn session_token_remains_valid() {
-        let mut app =
-            app(CsrfSynchronizerTokenLayer::new().regenerate(RegenerateToken::PerSession));
+        let mut app = app(CsrfLayer::new().regenerate(RegenerateToken::PerSession));
 
         // Get CSRF token
         let response = app
@@ -680,7 +669,7 @@ mod tests {
 
     #[tokio::test]
     async fn single_use_token_is_regenerated() {
-        let mut app = app(CsrfSynchronizerTokenLayer::new().regenerate(RegenerateToken::PerUse));
+        let mut app = app(CsrfLayer::new().regenerate(RegenerateToken::PerUse));
 
         // Get single-use CSRF token
         let response = app
@@ -746,8 +735,7 @@ mod tests {
 
     #[tokio::test]
     async fn single_request_token_is_regenerated() {
-        let mut app =
-            app(CsrfSynchronizerTokenLayer::new().regenerate(RegenerateToken::PerRequest));
+        let mut app = app(CsrfLayer::new().regenerate(RegenerateToken::PerRequest));
 
         // Get single-use CSRF token
         let response = app
@@ -812,8 +800,7 @@ mod tests {
 
     #[tokio::test]
     async fn accepts_custom_request_header() {
-        let mut app =
-            app(CsrfSynchronizerTokenLayer::new().request_header("X-Custom-Token-Request-Header"));
+        let mut app = app(CsrfLayer::new().request_header("X-Custom-Token-Request-Header"));
 
         // Get CSRF token
         let response = app
@@ -854,12 +841,10 @@ mod tests {
     #[tokio::test]
     async fn sends_custom_response_header() {
         // Get CSRF token
-        let response = app(
-            CsrfSynchronizerTokenLayer::new().response_header("X-Custom-Token-Response-Header")
-        )
-        .oneshot(Request::builder().body(Body::empty()).unwrap())
-        .await
-        .unwrap();
+        let response = app(CsrfLayer::new().response_header("X-Custom-Token-Response-Header"))
+            .oneshot(Request::builder().body(Body::empty()).unwrap())
+            .await
+            .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
 
@@ -883,7 +868,7 @@ mod tests {
 
         let app = Router::new()
             .route("/", get(extract_session))
-            .layer(CsrfSynchronizerTokenLayer::new().session_key("custom_session_key"))
+            .layer(CsrfLayer::new().session_key("custom_session_key"))
             .layer(session_layer());
 
         let response = app
@@ -898,7 +883,7 @@ mod tests {
     async fn missing_session_layer_error_response() {
         let app = Router::new()
             .route("/", get(handler))
-            .layer(CsrfSynchronizerTokenLayer::new());
+            .layer(CsrfLayer::new());
 
         let response = app
             .oneshot(Request::builder().body(Body::empty()).unwrap())
@@ -910,7 +895,7 @@ mod tests {
 
     #[tokio::test]
     async fn invalid_token_str_error_response() {
-        let layer = CsrfSynchronizerTokenLayer::new();
+        let layer = CsrfLayer::new();
         let response = Response::builder()
             .status(StatusCode::OK)
             .body(axum::body::boxed(Body::empty()))

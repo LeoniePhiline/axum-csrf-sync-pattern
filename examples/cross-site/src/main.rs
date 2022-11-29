@@ -6,7 +6,7 @@ use axum::{
     routing::{get, Router},
     Server,
 };
-use axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer;
+use axum_csrf_sync_pattern::CsrfLayer;
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
 use rand::RngCore;
@@ -40,7 +40,7 @@ async fn main() -> eyre::Result<()> {
 
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
-            .layer(CsrfSynchronizerTokenLayer::new())
+            .layer(CsrfLayer::new())
             .layer(SessionLayer::new(MemoryStore::new(), &secret))
             .layer(
                 CorsLayer::new()
@@ -55,7 +55,7 @@ async fn main() -> eyre::Result<()> {
                     .allow_headers([
                         // Allow incoming CORS requests to use the Content-Type header,
                         header::CONTENT_TYPE,
-                        // as well as the `CsrfSynchronizerTokenLayer` default request header.
+                        // as well as the `CsrfLayer` default request header.
                         "X-CSRF-TOKEN"
                             .parse()
                             .wrap_err("Failed to parse token header.")?,
@@ -63,7 +63,7 @@ async fn main() -> eyre::Result<()> {
                     // Allow CORS requests with session cookies.
                     .allow_credentials(true)
                     // Instruct the browser to allow JavaScript on the configured origin
-                    // to read the `CsrfSynchronizerTokenLayer` default response header.
+                    // to read the `CsrfLayer` default response header.
                     .expose_headers(["X-CSRF-TOKEN"
                         .parse()
                         .wrap_err("Failed to parse token header.")?]),

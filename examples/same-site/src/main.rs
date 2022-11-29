@@ -4,7 +4,7 @@ use axum::{
     routing::get,
     Server,
 };
-use axum_csrf_sync_pattern::CsrfSynchronizerTokenLayer;
+use axum_csrf_sync_pattern::CsrfLayer;
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
 use rand::RngCore;
@@ -27,7 +27,7 @@ async fn main() -> eyre::Result<()> {
 
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
-        .layer(CsrfSynchronizerTokenLayer::new())
+        .layer(CsrfLayer::new())
         .layer(SessionLayer::new(MemoryStore::new(), &secret));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
