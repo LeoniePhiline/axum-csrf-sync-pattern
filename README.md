@@ -120,7 +120,7 @@ async fn handler() -> StatusCode {
 let app = Router::new()
  .route("/", get(handler).post(handler))
  .layer(
-     CsrfSynchronizerTokenLayer::default()
+     CsrfSynchronizerTokenLayer::new()
 
      // Optionally, configure the layer with the following options:
 
@@ -199,7 +199,7 @@ let app = Router::new()
  .route("/", get(handler).post(handler))
  .layer(
      // See example above for custom layer configuration.
-     CsrfSynchronizerTokenLayer::default()
+     CsrfSynchronizerTokenLayer::new()
  )
  .layer(SessionLayer::new(MemoryStore::new(), &secret))
  .layer(

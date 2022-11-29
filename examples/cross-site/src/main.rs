@@ -40,7 +40,7 @@ async fn main() -> eyre::Result<()> {
 
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
-            .layer(CsrfSynchronizerTokenLayer::default())
+            .layer(CsrfSynchronizerTokenLayer::new())
             .layer(SessionLayer::new(MemoryStore::new(), &secret))
             .layer(
                 CorsLayer::new()

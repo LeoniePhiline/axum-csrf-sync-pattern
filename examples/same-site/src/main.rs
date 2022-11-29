@@ -27,7 +27,7 @@ async fn main() -> eyre::Result<()> {
 
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
-        .layer(CsrfSynchronizerTokenLayer::default())
+        .layer(CsrfSynchronizerTokenLayer::new())
         .layer(SessionLayer::new(MemoryStore::new(), &secret));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
