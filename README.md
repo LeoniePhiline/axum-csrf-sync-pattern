@@ -87,7 +87,7 @@ Use [`tower_http::TraceLayer`](https://docs.rs/tower-http/latest/tower_http/trac
 
 This crate uses no `unsafe` code.
 
-The layer and middleware functionality is tested. View the the module source code to learn more.
+The layer and middleware functionality is tested. View the module source code to learn more.
 
 ## Usage
 
