@@ -236,10 +236,8 @@ use std::{
     task::{Context, Poll},
 };
 
-use axum::{
-    http::{self, HeaderValue, Request, StatusCode},
-    response::{IntoResponse, Response},
-};
+use axum::http::{self, HeaderValue, Request, StatusCode};
+use axum_core::response::{IntoResponse, Response};
 use axum_sessions::{async_session::Session, SessionHandle};
 use rand::RngCore;
 use tokio::sync::RwLockWriteGuard;
@@ -543,10 +541,10 @@ mod tests {
 
     use axum::{
         body::{Body, HttpBody},
-        response::{IntoResponse, Response},
         routing::get,
         Router,
     };
+    use axum_core::response::{IntoResponse, Response};
     use axum_sessions::{async_session::MemoryStore, extractors::ReadableSession, SessionLayer};
     use http::{
         header::{COOKIE, SET_COOKIE},
