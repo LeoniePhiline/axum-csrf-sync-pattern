@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for `axum` 0.6, `axum-core` 0.3 and `axum-sessions` 0.4.
+- Added support for [`axum` 0.6](https://tokio.rs/blog/2022-11-25-announcing-axum-0-6-0),
+  [`axum-core` 0.3](https://github.com/tokio-rs/axum/releases/tag/axum-core-v0.3.0)
+  and [`axum-sessions` 0.4](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.0).
 
 ### Changed
 
@@ -30,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Re-licensed the project under Mozilla Public License 2.0,
   allowing for commercial use, while inciting contributions.
-- Updated `tokio` from 1.21 to 1.22.
+- Updated `tokio` from 1.21 to [1.22](https://github.com/tokio-rs/tokio/releases/tag/tokio-1.22.0).
 
 ### Removed
 
