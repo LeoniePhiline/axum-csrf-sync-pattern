@@ -1,0 +1,96 @@
+name: Continuous integration
+
+env:
+  CARGO_TERM_COLOR: always
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pwd:
+          - .
+          - examples
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.pwd }}
+          workspaces: ${{ matrix.pwd }}
+      - name: Check
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo clippy --all --all-targets --all-features
+      - name: Check formatting
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo fmt --all -- --check
+
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: "-D rustdoc::broken_intra_doc_links"
+        run: cargo doc --all-features --no-deps
+
+  test:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all --all-features --all-targets
+
+  dependencies-sorted:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pwd:
+          - .
+          - examples
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.pwd }}
+          workspaces: ${{ matrix.pwd }}
+      - run: |
+          cargo install cargo-sort
+      - name: Check dependency tables
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo sort --workspace --grouped --check
