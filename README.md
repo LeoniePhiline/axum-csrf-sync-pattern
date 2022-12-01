@@ -4,6 +4,7 @@ This crate provides a Cross-Site Request Forgery protection layer and middleware
 
 [![Crates.io](https://img.shields.io/crates/v/axum-csrf-sync-pattern)](https://crates.io/crates/axum-csrf-sync-pattern)
 [![Documentation](https://docs.rs/axum-csrf-sync-pattern/badge.svg)][docs]
+[![Continuous integration](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/actions/workflows/ci.yml)
 
 The middleware implements the [CSRF Synchronizer Token Pattern](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern)
 for AJAX backends and API endpoints as described in the OWASP CSRF prevention cheat sheet.
