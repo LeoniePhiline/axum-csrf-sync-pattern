@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Nothing yet.
+
+## [0.2.2] - 2022-12-01
+
 ### Fixed
 
+- Re-release - forgot to update version in `Cargo.toml` for [0.2.1].
 - Fixed punctuation in `CHANGELOG.md`. ([68df15d](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/68df15d63a9b3b9e4ccde84e34239bcba156629c))
 
 ## [0.2.1] - 2022-12-01
@@ -97,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...HEAD
+[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.2...HEAD
+[0.2.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...0.2.0
 [0.1.4]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.3...0.1.4
