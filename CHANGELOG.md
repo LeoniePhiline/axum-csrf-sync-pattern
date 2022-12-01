@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Nothing yet.
+
+## [0.2.1] - 2022-12-01
+
+### Changed
+
+- Updated to [`axum 0.6.1`](https://github.com/tokio-rs/axum/releases/tag/axum-v0.6.1).
+- Updated to [`axum-sessions 0.4.1`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.1).
+- Added links to dependency versions to ease dependents' work ([57dbd72](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/57dbd72ba0cbd8ff29074d86f1480703d1cba9b1))
+
+### Fixed
+
+- Removed a duplicated word from `README.md` ([09ead55](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/09ead55fef5d89f95d4ea444a206028a3539f5bb))
+
 ## [0.2.0] - 2022-11-29
 
 ### Added
@@ -81,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.0...HEAD
+[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...HEAD
+[0.2.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...0.2.0
 [0.1.4]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.3...0.1.4
 [0.1.3]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.2...0.1.3
