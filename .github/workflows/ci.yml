@@ -1,64 +1,96 @@
-on: [push, pull_request]
-
 name: Continuous integration
+
+env:
+  CARGO_TERM_COLOR: always
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
 
 jobs:
   check:
-    name: Check
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pwd:
+          - .
+          - examples
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
-      - uses: actions-rs/cargo@v1
+          profile: minimal
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
         with:
-          command: check
+          key: ${{ matrix.pwd }}
+          workspaces: ${{ matrix.pwd }}
+      - name: Check
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo clippy --all --all-targets --all-features
+      - name: Check formatting
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo fmt --all -- --check
+
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+      - name: Check documentation
+        env:
+          RUSTDOCFLAGS: "-D broken-intra-doc-links"
+        run: cargo doc --all-features --no-deps
 
   test:
-    name: Test Suite
+    needs: check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
-      - uses: actions-rs/cargo@v1
+          profile: minimal
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all --all-features --all-targets
 
-  fmt:
-    name: Rustfmt
+  dependencies-sorted:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pwd:
+          - .
+          - examples
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
           profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add clippy
-      - uses: actions-rs/cargo@v1
+      - uses: Swatinem/rust-cache@v2
         with:
-          command: clippy
-          args: -- -D warnings
+          key: ${{ matrix.pwd }}
+          workspaces: ${{ matrix.pwd }}
+      - run: |
+          cargo install cargo-sort
+      - name: Check dependency tables
+        working-directory: ${{ matrix.pwd }}
+        run: |
+          cargo sort --workspace --grouped --check
