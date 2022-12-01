@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Created CI workflow, with `cargo check`, `cargo clippy`, `cargo fmt --check`, `cargo doc`, `cargo test` and `cargo sort --check`.
+
 ### Changed
 
 - Removed `tower::util::ServiceExt::oneshot` from `README.md`, hinting instead merely at serving the app with `hyper::Server`. (#17, #20)
