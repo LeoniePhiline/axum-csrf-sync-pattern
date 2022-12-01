@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed punctuation in `CHANGELOG.md`. (8f84875)
+- Fixed punctuation in `CHANGELOG.md`. ([68df15d](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/68df15d63a9b3b9e4ccde84e34239bcba156629c))
 
 ## [0.2.1] - 2022-12-01
 
