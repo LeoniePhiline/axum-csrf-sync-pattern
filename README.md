@@ -15,7 +15,7 @@ More information about this crate can be found in the [crate documentation][docs
 ## Installation
 
 ```toml
-axum-csrf-sync-pattern = "0.2.2"
+axum-csrf-sync-pattern = "0.3.1"
 ```
 
 ## Examples
@@ -30,7 +30,7 @@ This middleware implements token transfer via [custom request headers](https://c
 
 The middleware requires and is built upon [`axum_sessions`](https://docs.rs/axum-sessions/), which in turn uses [`async_session`](https://docs.rs/async-session/).
 
-The current version is built for and works with `axum 0.6.x`, `axum-sessions 0.4.x` and `async_session 3.x`.
+The current version is built for and works with `axum 0.6.x`, `axum-sessions 0.5.x` and `async_session 3.x`.
 
 There will be support for `axum 0.7` and later versions.
 
