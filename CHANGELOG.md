@@ -11,8 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - 2023-04-21
 
-### Breaking
-
 ### Changed
 
 - Updated `README.md` to reflect semver-breaking `axum-sessions 0.5` update.
