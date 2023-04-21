@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+*(none)*
+
+## [0.3.0] - 2023-04-21
+
+### Breaking
+
+- BREAKING: Updated to [`axum-sessions 0.5`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.5.0).
+
 ### Added
 
 - Created CI workflow, with `cargo check`, `cargo clippy`, `cargo fmt --check`, `cargo doc`, `cargo test` and `cargo sort --check`.
@@ -15,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Removed `tower::util::ServiceExt::oneshot` from `README.md`, hinting instead merely at serving the app with `hyper::Server`. (#17, #20)
+- Updated library dependencies.
+- Updated `same-site` and `cross-site` example dependencies.
 
 ## [0.2.2] - 2022-12-01
 
@@ -39,9 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for [`axum` 0.6](https://tokio.rs/blog/2022-11-25-announcing-axum-0-6-0),
-  [`axum-core` 0.3](https://github.com/tokio-rs/axum/releases/tag/axum-core-v0.3.0)
-  and [`axum-sessions` 0.4](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.0).
+- Added support for [`axum 0.6`](https://tokio.rs/blog/2022-11-25-announcing-axum-0-6-0),
+  [`axum-core 0.3`](https://github.com/tokio-rs/axum/releases/tag/axum-core-v0.3.0)
+  and [`axum-sessions 0.4`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.0).
 
 ### Changed
 
@@ -109,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.2...HEAD
+[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.1.4...0.2.0
