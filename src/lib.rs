@@ -239,6 +239,7 @@ use std::{
 use axum::http::{self, HeaderValue, Request, StatusCode};
 use axum_core::response::{IntoResponse, Response};
 use axum_sessions::{async_session::Session, SessionHandle};
+use base64::prelude::*;
 use rand::RngCore;
 use tokio::sync::RwLockWriteGuard;
 use tower::Layer;
@@ -320,7 +321,7 @@ impl CsrfLayer {
     ) -> Result<String, Error> {
         let mut buf = [0; 32];
         rand::thread_rng().try_fill_bytes(&mut buf)?;
-        let token = base64::encode(buf);
+        let token = BASE64_STANDARD.encode(buf);
         session_write.insert(self.session_key, &token)?;
 
         Ok(token)
@@ -583,7 +584,7 @@ mod tests {
         assert_eq!(response.status(), StatusCode::OK);
 
         let client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(client_token).unwrap().len(), 32);
+        assert_eq!(BASE64_STANDARD.decode(client_token).unwrap().len(), 32);
     }
 
     #[tokio::test]
@@ -598,7 +599,7 @@ mod tests {
 
         // Assert: Response must contain token even on request token failure.
         let client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(client_token).unwrap().len(), 32);
+        assert_eq!(BASE64_STANDARD.decode(client_token).unwrap().len(), 32);
     }
 
     #[tokio::test]
@@ -620,7 +621,10 @@ mod tests {
         let session_cookie = response.headers().get(SET_COOKIE).unwrap().clone();
 
         let initial_client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(initial_client_token).unwrap().len(), 32);
+        assert_eq!(
+            BASE64_STANDARD.decode(initial_client_token).unwrap().len(),
+            32
+        );
 
         // Use CSRF token for POST request
         let response = app
@@ -686,7 +690,10 @@ mod tests {
         let session_cookie = response.headers().get(SET_COOKIE).unwrap().clone();
 
         let initial_client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(initial_client_token).unwrap().len(), 32);
+        assert_eq!(
+            BASE64_STANDARD.decode(initial_client_token).unwrap().len(),
+            32
+        );
 
         // Use CSRF token for POST request
         let response = app
@@ -752,7 +759,10 @@ mod tests {
         let session_cookie = response.headers().get(SET_COOKIE).unwrap().clone();
 
         let initial_client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(initial_client_token).unwrap().len(), 32);
+        assert_eq!(
+            BASE64_STANDARD.decode(initial_client_token).unwrap().len(),
+            32
+        );
 
         // Perform another GET request
         let response = app
@@ -817,7 +827,7 @@ mod tests {
         let session_cookie = response.headers().get(SET_COOKIE).unwrap().clone();
 
         let client_token = response.headers().get("X-CSRF-TOKEN").unwrap();
-        assert_eq!(base64::decode(client_token).unwrap().len(), 32);
+        assert_eq!(BASE64_STANDARD.decode(client_token).unwrap().len(), 32);
 
         // Use CSRF token for POST request
         let response = app
@@ -852,7 +862,7 @@ mod tests {
             .headers()
             .get("X-Custom-Token-Response-Header")
             .unwrap();
-        assert_eq!(base64::decode(client_token).unwrap().len(), 32);
+        assert_eq!(BASE64_STANDARD.decode(client_token).unwrap().len(), 32);
     }
 
     #[tokio::test]
@@ -862,7 +872,10 @@ mod tests {
         async fn extract_session(session: ReadableSession) -> StatusCode {
             let session_csrf_token: String = session.get("custom_session_key").unwrap();
 
-            assert_eq!(base64::decode(session_csrf_token).unwrap().len(), 32);
+            assert_eq!(
+                BASE64_STANDARD.decode(session_csrf_token).unwrap().len(),
+                32
+            );
             StatusCode::OK
         }
 
