@@ -1,13 +1,15 @@
 use axum::{
+    BoxError,
     http::{header, StatusCode},
     response::IntoResponse,
     routing::get,
+    error_handling::HandleErrorLayer,
     Server,
 };
+use tower::ServiceBuilder;
 use axum_csrf_sync_pattern::CsrfLayer;
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
-use rand::RngCore;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -20,15 +22,14 @@ async fn main() -> eyre::Result<()> {
         .map_err(|e| eyre!(e))
         .wrap_err("Failed to initialize tracing-subscriber.")?;
 
-    let mut secret = [0; 64];
-    rand::thread_rng()
-        .try_fill_bytes(&mut secret)
-        .wrap_err("Failed to generate session seed.")?;
-
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
         .layer(CsrfLayer::new())
-        .layer(SessionLayer::new(MemoryStore::new(), &secret));
+        .layer(ServiceBuilder::new()
+            .layer(HandleErrorLayer::new(|_: BoxError| async {
+                StatusCode::BAD_REQUEST
+            }))
+            .layer(SessionManagerLayer::new(MemoryStore::default())));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
     Server::try_bind(
