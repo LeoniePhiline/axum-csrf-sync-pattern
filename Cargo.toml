@@ -17,7 +17,6 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 axum = "0.6.20"
-axum-core = "0.3.4"
 base64 = "0.21.5"
 rand = "0.8.5"
 thiserror = "1.0.40"

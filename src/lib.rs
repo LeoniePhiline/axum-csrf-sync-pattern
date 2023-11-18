@@ -245,8 +245,10 @@ use std::{
     task::{Context, Poll},
 };
 
-use axum::http::{self, HeaderValue, Request, StatusCode};
-use axum_core::response::{IntoResponse, Response};
+use axum::{
+    http::{self, HeaderValue, Request, StatusCode},
+    response::{IntoResponse, Response},
+};
 use tower_sessions::Session;
 use base64::prelude::*;
 use rand::RngCore;
@@ -545,8 +547,15 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use axum::{body::Body, routing::get, Router, error_handling::HandleErrorLayer};
-    use axum_core::{response::{IntoResponse, Response}, BoxError};
+    use axum::{
+        body::Body,
+        routing::get,
+        Router,
+        error_handling::HandleErrorLayer,
+        response::{IntoResponse, Response},
+        BoxError,
+    };
+
     use tower_sessions::{MemoryStore, SessionManagerLayer};
     use http::{
         header::{COOKIE, SET_COOKIE},
