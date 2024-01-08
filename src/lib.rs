@@ -85,10 +85,9 @@
 //!     routing::{get, Router},
 //!     error_handling::HandleErrorLayer,
 //! };
-//! use tower::ServiceBuilder;
 //! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use tower_sessions::{MemoryStore, SessionManagerLayer};
-//! 
+//!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
 //! }
@@ -109,12 +108,7 @@
 //!         // Default: "_csrf_token"
 //!         .session_key("_custom_session_key")
 //!     )
-//!     .layer(ServiceBuilder::new()
-//!         .layer(HandleErrorLayer::new(|_: BoxError| async {
-//!             StatusCode::BAD_REQUEST
-//!         }))
-//!         .layer(SessionManagerLayer::new(MemoryStore::default()))
-//!     );
+//!     .layer(SessionManagerLayer::new(MemoryStore::default()));
 //!
 //! // Use hyper to run `app` as service and expose on a local port or socket.
 //!
@@ -164,7 +158,7 @@
 //! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use tower_sessions::{MemoryStore, SessionManagerLayer};
 //! use tower_http::cors::{AllowOrigin, CorsLayer};
-//! 
+//!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
 //! }
@@ -175,19 +169,14 @@
 //!         // See example above for custom layer configuration.
 //!         CsrfLayer::new()
 //!     )
-//!     .layer(ServiceBuilder::new()
-//!         .layer(HandleErrorLayer::new(|_: BoxError| async {
-//!             StatusCode::BAD_REQUEST
-//!         }))
-//!         .layer(SessionManagerLayer::new(MemoryStore::default()))
-//!         .layer(
-//!             CorsLayer::new()
-//!                 .allow_origin(AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
-//!                 .allow_methods([Method::GET, Method::POST])
-//!                 .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
-//!                 .allow_credentials(true)
-//!                 .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
-//!         )
+//!     .layer(SessionManagerLayer::new(MemoryStore::default()))
+//!     .layer(
+//!         CorsLayer::new()
+//!             .allow_origin(AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
+//!             .allow_methods([Method::GET, Method::POST])
+//!             .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
+//!             .allow_credentials(true)
+//!             .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
 //!     );
 //!     
 //!
@@ -249,10 +238,10 @@ use axum::{
     http::{self, HeaderValue, Request, StatusCode},
     response::{IntoResponse, Response},
 };
-use tower_sessions::Session;
 use base64::prelude::*;
 use rand::RngCore;
-use tower::Layer;
+use tower_layer::Layer;
+use tower_sessions::Session;
 
 /// Use `CsrfLayer::new()` to provide the middleware and configuration to axum's service stack.
 ///
@@ -325,14 +314,11 @@ impl CsrfLayer {
         self
     }
 
-    fn regenerate_token(
-        &self,
-        session: &Session,
-    ) -> Result<String, Error> {
+    async fn regenerate_token(&self, session: &Session) -> Result<String, Error> {
         let mut buf = [0; 32];
         rand::thread_rng().try_fill_bytes(&mut buf)?;
         let token = BASE64_STANDARD.encode(buf);
-        session.insert(self.session_key, &token)?;
+        session.insert(self.session_key, &token).await?;
 
         Ok(token)
     }
@@ -395,7 +381,7 @@ enum Error {
     #[error("Session error")]
     Session(#[from] tower_sessions::session::Error),
 
-    #[error("Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?")]
+    #[error("Session extension missing. Is `tower_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?")]
     SessionLayerMissing,
 
     #[error("Incoming CSRF token header was not valid ASCII")]
@@ -441,8 +427,8 @@ pub struct CsrfMiddleware<S> {
 }
 
 impl<S> CsrfMiddleware<S> {
-    /// Create a new middleware from an inner [`tower::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfLayer`].
-    /// Commonly, the middleware is created by the [`tower::Layer`] - and never manually.
+    /// Create a new middleware from an inner [`tower_service::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfLayer`].
+    /// Commonly, the middleware is created by the [`tower_layer::Layer`] - and never manually.
     pub fn new(inner: S, layer: CsrfLayer) -> Self {
         CsrfMiddleware { inner, layer }
     }
@@ -454,9 +440,12 @@ impl<S> CsrfMiddleware<S> {
     }
 }
 
-impl<S, B: Send + 'static> tower::Service<Request<B>> for CsrfMiddleware<S>
+impl<S, B: Send + 'static> tower_service::Service<Request<B>> for CsrfMiddleware<S>
 where
-    S: tower::Service<Request<B>, Response = Response, Error = Infallible> + Send + Clone + 'static,
+    S: tower_service::Service<Request<B>, Response = Response, Error = Infallible>
+        + Send
+        + Clone
+        + 'static,
     S::Future: Send,
 {
     type Response = S::Response;
@@ -484,9 +473,14 @@ where
 
             // Extract the CSRF server side token from the session; create a new one if none has been set yet.
             // If the regeneration option is set to "per request", then regenerate the token even if present in the session.
-            let mut server_token = match session.get::<String>(layer.session_key).ok().flatten() {
+            let mut server_token = match session
+                .get::<String>(layer.session_key)
+                .await
+                .ok()
+                .flatten()
+            {
                 Some(token) => token,
-                None => match layer.regenerate_token(&session) {
+                None => match layer.regenerate_token(&session).await {
                     Ok(token) => token,
                     Err(error) => return Ok(error.into_response()),
                 },
@@ -527,7 +521,7 @@ where
             if layer.regenerate_token == RegenerateToken::PerRequest
                 || (!req.method().is_safe() && layer.regenerate_token == RegenerateToken::PerUse)
             {
-                server_token = match layer.regenerate_token(&session) {
+                server_token = match layer.regenerate_token(&session).await {
                     Ok(token) => token,
                     Err(error) => {
                         return Ok(layer.response_with_token(error.into_response(), &server_token))
@@ -549,19 +543,16 @@ mod tests {
 
     use axum::{
         body::Body,
+        response::{IntoResponse, Response},
         routing::get,
         Router,
-        error_handling::HandleErrorLayer,
-        response::{IntoResponse, Response},
-        BoxError,
     };
-
-    use tower_sessions::{MemoryStore, SessionManagerLayer};
     use http::{
         header::{COOKIE, SET_COOKIE},
         Method, Request, StatusCode,
     };
-    use tower::{Service, ServiceExt, ServiceBuilder};
+    use tower::{Service, ServiceExt};
+    use tower_sessions::{MemoryStore, SessionManagerLayer};
 
     use super::*;
 
@@ -581,11 +572,7 @@ mod tests {
         Router::new()
             .route("/", get(handler).post(handler))
             .layer(csrf_layer)
-            .layer(ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(|_: BoxError| async {
-                    StatusCode::BAD_REQUEST
-                }))
-                .layer(session_layer()))
+            .layer(session_layer())
     }
 
     #[tokio::test]
@@ -624,6 +611,7 @@ mod tests {
 
         // Get CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -644,6 +632,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -666,6 +655,7 @@ mod tests {
 
         // Attempt token re-use for a second POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -693,6 +683,7 @@ mod tests {
 
         // Get single-use CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -713,6 +704,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -735,6 +727,7 @@ mod tests {
 
         // Attempt token re-use for a second POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -762,6 +755,7 @@ mod tests {
 
         // Get single-use CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -782,6 +776,7 @@ mod tests {
 
         // Perform another GET request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -803,6 +798,7 @@ mod tests {
 
         // Attempt using single-request token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -830,6 +826,7 @@ mod tests {
 
         // Get CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -847,6 +844,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -886,7 +884,8 @@ mod tests {
         // Custom handler asserting the layer's configured session key is set,
         // and its value looks like a CSRF token.
         async fn extract_session(session: Session) -> StatusCode {
-            let session_csrf_token: String = session.get("custom_session_key").unwrap().unwrap();
+            let session_csrf_token: String =
+                session.get("custom_session_key").await.unwrap().unwrap();
 
             assert_eq!(
                 BASE64_STANDARD.decode(session_csrf_token).unwrap().len(),
@@ -898,11 +897,7 @@ mod tests {
         let app = Router::new()
             .route("/", get(extract_session))
             .layer(CsrfLayer::new().session_key("custom_session_key"))
-            .layer(ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(|_: BoxError| async {
-                    StatusCode::BAD_REQUEST
-                }))
-                .layer(session_layer()));
+            .layer(session_layer());
 
         let response = app
             .oneshot(Request::builder().body(Body::empty()).unwrap())
@@ -931,7 +926,7 @@ mod tests {
         let layer = CsrfLayer::new();
         let response = Response::builder()
             .status(StatusCode::OK)
-            .body(axum::body::boxed(Body::empty()))
+            .body(Body::empty())
             .unwrap();
         let response = layer.response_with_token(response, "\n");
 

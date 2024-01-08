@@ -6,11 +6,10 @@ edition = "2021"
 publish = false
 
 [dependencies]
-axum = "0.6.16"
+axum = "0.7.3"
 axum-csrf-sync-pattern = { path = "../../" }
-tower-sessions = "0.4.3"
+tower-sessions = "0.9.1"
 color-eyre = "0.6.2"
 tokio = { version = "1.27.0", features = ["macros", "rt", "rt-multi-thread"] }
-tower = "0.4.13"
-tower-http = { version = "0.4.0", features = ["cors"] }
-tracing-subscriber = "0.3.16"
+tower-http = { version = "0.5.0", features = ["cors"] }
+tracing-subscriber = "0.3.18"

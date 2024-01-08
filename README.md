@@ -30,9 +30,7 @@ This middleware implements token transfer via [custom request headers](https://c
 
 The middleware requires and is built upon [`tower_sessions`](https://docs.rs/tower-sessions/).
 
-The current version is built for and works with `axum 0.6.x`, `tower-sessions 0.4.x`.
-
-There will be support for `axum 0.7` and later versions.
+The current version is built for and works with `axum 0.7.x`, `tower-sessions 0.9.x`.
 
 The [Same Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) prevents the custom request header to be set by foreign scripts.
 
@@ -105,14 +103,11 @@ Configure your session and CSRF protection layer in your backend application:
 
 ```rust
 use axum::{
-    BoxError,
-    body::Body,
-    http::StatusCode,
-    routing::{get, Router},
-    error_handling::HandleErrorLayer,
+    http::{header, StatusCode},
+    response::IntoResponse,
+    routing::get,
 };
-use tower::ServiceBuilder;
-use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
+use axum_csrf_sync_pattern::CsrfLayer;
 use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 async fn handler() -> StatusCode {
@@ -135,12 +130,7 @@ let app = Router::new()
      // Default: "_csrf_token"
      .session_key("_custom_session_key")
  )
- .layer(ServiceBuilder::new()
-    .layer(HandleErrorLayer::new(|_: BoxError| async {
-        StatusCode::BAD_REQUEST
-    }))
-    .layer(SessionManagerLayer::new(MemoryStore::default())));
-
+ .layer(SessionManagerLayer::new(MemoryStore::default()));
 
 // Use hyper to run `app` as service and expose on a local port or socket.
 ```
@@ -179,16 +169,13 @@ Configure your CORS layer, session and CSRF protection layer in your backend app
 
 ```rust
 use axum::{
-    BoxError,
-    body::Body,
     http::{header, Method, StatusCode},
+    response::IntoResponse,
     routing::{get, Router},
-    error_handling::HandleErrorLayer,
 };
-use tower::ServiceBuilder;
-use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
-use tower_sessions::{MemoryStore, SessionManagerLayer};
+use axum_csrf_sync_pattern::CsrfLayer;
 use tower_http::cors::{AllowOrigin, CorsLayer};
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 async fn handler() -> StatusCode {
     StatusCode::OK
@@ -200,19 +187,14 @@ let app = Router::new()
       // See example above for custom layer configuration.
       CsrfLayer::new()
   )
-  .layer(ServiceBuilder::new()
-      .layer(HandleErrorLayer::new(|_: BoxError| async {
-          StatusCode::BAD_REQUEST
-      }))
-      .layer(SessionManagerLayer::new(MemoryStore::default()))
-      .layer(
-          CorsLayer::new()
-              .allow_origin(AllowOrigin::list(["https://www.example.com".parse().rap()]))
-              .allow_methods([Method::GET, Method::POST])
-              .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
-              .allow_credentials(true)
-              .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
-      )
+  .layer(SessionManagerLayer::new(MemoryStore::default()))
+  .layer(
+      CorsLayer::new()
+          .allow_origin(AllowOrigin::list(["https://www.example.com".parse().rap()]))
+          .allow_methods([Method::GET, Method::POST])
+          .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
+          .allow_credentials(true)
+          .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
   );
 
 // Use hyper to run `app` as service and expose on a local port or socket.
