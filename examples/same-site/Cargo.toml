@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 axum = "0.7.3"
 axum-csrf-sync-pattern = { path = "../../" }
-tower-sessions = "0.9.1"
 color-eyre = "0.6.2"
 tokio = { version = "1.27.0", features = ["macros", "rt", "rt-multi-thread"] }
+tower-sessions = "0.9.1"
 tracing-subscriber = "0.3.18"

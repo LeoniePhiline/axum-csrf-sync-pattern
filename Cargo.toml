@@ -29,5 +29,5 @@ tracing = "0.1.40"
 [dev-dependencies]
 tokio = { version = "1.27.0", features = ["macros", "rt", "rt-multi-thread"] }
 tokio-test = "0.4.2"
-tower-http = { version = "0.5.0", features = ["cors"] }
 tower = "0.4.13"
+tower-http = { version = "0.5.0", features = ["cors"] }
