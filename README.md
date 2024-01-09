@@ -28,11 +28,9 @@ Consider as well to use the [crate unit tests](https://github.com/LeoniePhiline/
 
 This middleware implements token transfer via [custom request headers](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#use-of-custom-request-headers).
 
-The middleware requires and is built upon [`axum_sessions`](https://docs.rs/axum-sessions/), which in turn uses [`async_session`](https://docs.rs/async-session/).
+The middleware requires and is built upon [`tower_sessions`](https://docs.rs/tower-sessions/).
 
-The current version is built for and works with `axum 0.6.x`, `axum-sessions 0.5.x` and `async_session 3.x`.
-
-There will be support for `axum 0.7` and later versions.
+The current version is built for and works with `axum 0.7.x`, `tower-sessions 0.9.x`.
 
 The [Same Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) prevents the custom request header to be set by foreign scripts.
 
@@ -67,7 +65,7 @@ See ["Our RNGs"](https://rust-random.github.io/book/guide-rngs.html#cryptographi
 
 The security of the underlying session is paramount - the CSRF prevention methods applied can only be as secure as the session carrying the server-side token.
 
-- When creating your [SessionLayer](https://docs.rs/axum-sessions/latest/axum_sessions/struct.SessionLayer.html), make sure to use at least 64 bytes of cryptographically secure randomness.
+- When creating your [SessionManagerLayer](https://docs.rs/tower-sessions/latest/tower_sessions/struct.SessionManagerLayer.html)
 - Do not lower the secure defaults: Keep the session cookie's `secure` flag **on**.
 - Use the strictest possible same-site policy.
 
@@ -105,16 +103,12 @@ Configure your session and CSRF protection layer in your backend application:
 
 ```rust
 use axum::{
-    body::Body,
-    http::StatusCode,
-    routing::{get, Router},
+    http::{header, StatusCode},
+    response::IntoResponse,
+    routing::get,
 };
-use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
-use rand::RngCore;
-
-let mut secret = [0; 64];
-rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+use axum_csrf_sync_pattern::CsrfLayer;
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 async fn handler() -> StatusCode {
     StatusCode::OK
@@ -136,7 +130,7 @@ let app = Router::new()
      // Default: "_csrf_token"
      .session_key("_custom_session_key")
  )
- .layer(SessionLayer::new(MemoryStore::new(), &secret));
+ .layer(SessionManagerLayer::new(MemoryStore::default()));
 
 // Use hyper to run `app` as service and expose on a local port or socket.
 ```
@@ -175,37 +169,33 @@ Configure your CORS layer, session and CSRF protection layer in your backend app
 
 ```rust
 use axum::{
-    body::Body,
     http::{header, Method, StatusCode},
+    response::IntoResponse,
     routing::{get, Router},
 };
-use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
-use rand::RngCore;
+use axum_csrf_sync_pattern::CsrfLayer;
 use tower_http::cors::{AllowOrigin, CorsLayer};
-
-let mut secret = [0; 64];
-rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 async fn handler() -> StatusCode {
     StatusCode::OK
 }
 
 let app = Router::new()
- .route("/", get(handler).post(handler))
- .layer(
-     // See example above for custom layer configuration.
-     CsrfLayer::new()
- )
- .layer(SessionLayer::new(MemoryStore::new(), &secret))
- .layer(
-     CorsLayer::new()
-         .allow_origin(AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
-         .allow_methods([Method::GET, Method::POST])
-         .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
-         .allow_credentials(true)
-         .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
-);
+  .route("/", get(handler).post(handler))
+  .layer(
+      // See example above for custom layer configuration.
+      CsrfLayer::new()
+  )
+  .layer(SessionManagerLayer::new(MemoryStore::default()))
+  .layer(
+      CorsLayer::new()
+          .allow_origin(AllowOrigin::list(["https://www.example.com".parse().rap()]))
+          .allow_methods([Method::GET, Method::POST])
+          .allow_headers([header::CONTENT_TYPE, "X-CSRF-TOKEN".parse().unwrap()])
+          .allow_credentials(true)
+          .expose_headers(["X-CSRF-TOKEN".parse().unwrap()]),
+  );
 
 // Use hyper to run `app` as service and expose on a local port or socket.
 ```

@@ -4,13 +4,11 @@ use axum::{
     http::{header, Method, StatusCode},
     response::IntoResponse,
     routing::{get, Router},
-    Server,
 };
 use axum_csrf_sync_pattern::CsrfLayer;
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
-use rand::RngCore;
 use tower_http::cors::{AllowOrigin, CorsLayer};
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -33,15 +31,10 @@ async fn main() -> eyre::Result<()> {
     };
 
     let backend = async {
-        let mut secret = [0; 64];
-        rand::thread_rng()
-            .try_fill_bytes(&mut secret)
-            .wrap_err("Failed to generate session seed.")?;
-
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
             .layer(CsrfLayer::new())
-            .layer(SessionLayer::new(MemoryStore::new(), &secret))
+            .layer(SessionManagerLayer::new(MemoryStore::default()))
             .layer(
                 CorsLayer::new()
                     .allow_origin(AllowOrigin::list([
@@ -81,9 +74,10 @@ async fn main() -> eyre::Result<()> {
 
 async fn serve(app: Router, port: u16) -> eyre::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    Server::try_bind(&addr)
-        .wrap_err("Could not bind to network address.")?
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .wrap_err("Could not bind to network address.")?;
+    axum::serve(listener, app)
         .await
         .wrap_err("Failed to serve the app.")?;
 
