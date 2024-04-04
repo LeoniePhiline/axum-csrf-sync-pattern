@@ -19,13 +19,13 @@ jobs:
           - examples
     steps:
       - uses: actions/checkout@master
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: stable
           override: true
           profile: minimal
           components: clippy, rustfmt
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
         with:
           key: ${{ matrix.pwd }}
           workspaces: ${{ matrix.pwd }}
@@ -42,12 +42,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: stable
           override: true
           profile: minimal
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
       - name: Check documentation
         env:
           RUSTDOCFLAGS: "-D rustdoc::broken_intra_doc_links"
@@ -58,14 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: stable
           override: true
           profile: minimal
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
       - name: Run tests
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1
         with:
           command: test
           args: --all --all-features --all-targets
@@ -79,12 +79,12 @@ jobs:
           - examples
     steps:
       - uses: actions/checkout@master
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
         with:
           toolchain: stable
           override: true
           profile: minimal
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2
         with:
           key: ${{ matrix.pwd }}
           workspaces: ${{ matrix.pwd }}
