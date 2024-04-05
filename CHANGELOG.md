@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] <!-- release-date -->
 
+## [0.3.2] - 2024-04-05
+
 ### Added
 
 - Configure `cargo nextest` and `cargo llvm-cov` to run in CI.
@@ -136,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added full crate documentation.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.1...HEAD
+[Unreleased]: https://github.com/LeoniePhiline/basispoort-sync-client/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.1...v0.3.2
 [0.3.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...0.2.2
