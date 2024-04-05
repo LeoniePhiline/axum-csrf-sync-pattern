@@ -1,0 +1,32 @@
+# Documentation:
+# - https://nexte.st/book/configuration.html
+
+[profile.default]
+
+# "failure-output" defines when standard output and standard error for failing tests are produced.
+# Accepted values are
+# * "immediate": output failures as soon as they happen
+# * "final": output failures at the end of the test run
+# * "immediate-final": output failures as soon as they happen and at the end of
+#   the test run; combination of "immediate" and "final"
+# * "never": don't output failures at all
+#
+# For large test suites and CI it is generally useful to use "immediate-final".
+#
+# Can be overridden through the `--failure-output` option.
+failure-output = "final"
+
+# Cancel the test run on the first failure. For CI runs, consider setting this
+# to false.
+fail-fast = false
+
+[profile.default.junit]
+
+# Output a JUnit report into the given file inside 'store.dir/<profile-name>'.
+# If unspecified, JUnit is not written out.
+path = "junit.xml"
+
+# Whether standard output and standard error for passing tests should be stored in the JUnit report.
+# Output is stored in the <system-out> and <system-err> elements of the <testcase> element.
+store-success-output = true
+
