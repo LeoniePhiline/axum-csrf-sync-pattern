@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!-- next-header -->
+
+## [Unreleased] <!-- release-date -->
+
+### Added
+
+- Configure `cargo nextest` and `cargo llvm-cov` to run in CI.
+- Configure `cargo release`.
 
 ### Fixed
 
@@ -128,7 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example / demo projects for same-site and cross-site usage.
 - Added full crate documentation.
 
-[unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.1...HEAD
+<!-- next-url -->
+[Unreleased]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.1...HEAD
 [0.3.1]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/LeoniePhiline/axum-csrf-sync-pattern/compare/0.2.1...0.2.2
