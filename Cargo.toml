@@ -28,4 +28,4 @@ tracing = "0.1.40"
 
 [dev-dependencies]
 tokio-test = "0.4.4"
-tower-http = { version = "0.4.4", features = ["cors"] }
+tower-http = { version = "0.6.0", features = ["cors"] }
