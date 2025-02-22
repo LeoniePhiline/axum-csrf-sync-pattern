@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-axum = "0.6.20"
+axum = "0.8.0"
 axum-csrf-sync-pattern = { path = "../../" }
 axum-sessions = "0.5.0"
 color-eyre = "0.6.3"
