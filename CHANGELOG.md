@@ -28,56 +28,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated `README.md` to reflect semver-breaking `axum-sessions 0.5` update.
-- Updated crate version in `README.md`.
+- Update `README.md` to reflect semver-breaking `axum-sessions 0.5` update.
+- Update crate version in `README.md`.
 
 ## [0.3.0] - 2023-04-21
 
 ### Breaking
 
-- BREAKING: Updated to [`axum-sessions 0.5`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.5.0).
+- BREAKING: Update to [`axum-sessions 0.5`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.5.0).
 
 ### Added
 
-- Created CI workflow, with `cargo check`, `cargo clippy`, `cargo fmt --check`, `cargo doc`, `cargo test` and `cargo sort --check`.
-- Added dependencies status badge (https://deps.rs).
+- Create CI workflow, with `cargo check`, `cargo clippy`, `cargo fmt --check`, `cargo doc`, `cargo test` and `cargo sort --check`.
+- Add dependencies status badge (https://deps.rs).
 
 ### Changed
 
-- Removed `tower::util::ServiceExt::oneshot` from `README.md`, hinting instead merely at serving the app with `hyper::Server`. (#17, #20)
-- Updated library dependencies.
-- Updated `same-site` and `cross-site` example dependencies.
+- Remove `tower::util::ServiceExt::oneshot` from `README.md`, hinting instead merely at serving the app with `hyper::Server`. (#17, #20)
+- Update library dependencies.
+- Update `same-site` and `cross-site` example dependencies.
 
 ## [0.2.2] - 2022-12-01
 
 ### Fixed
 
-- Re-release - forgot to update version in `Cargo.toml` for [0.2.1].
-- Fixed punctuation in `CHANGELOG.md`. ([68df15d](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/68df15d63a9b3b9e4ccde84e34239bcba156629c))
+- Re-release - fix missing version update in `Cargo.toml` for [0.2.1].
+- Fix punctuation in `CHANGELOG.md`. ([68df15d](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/68df15d63a9b3b9e4ccde84e34239bcba156629c))
 
 ## [0.2.1] - 2022-12-01
 
 ### Changed
 
-- Updated to [`axum 0.6.1`](https://github.com/tokio-rs/axum/releases/tag/axum-v0.6.1).
-- Updated to [`axum-sessions 0.4.1`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.1).
-- Added links to dependency versions to ease dependents' work. ([57dbd72](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/57dbd72ba0cbd8ff29074d86f1480703d1cba9b1))
+- Update to [`axum 0.6.1`](https://github.com/tokio-rs/axum/releases/tag/axum-v0.6.1).
+- Update to [`axum-sessions 0.4.1`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.1).
+- Add links to dependency versions to ease dependents' work. ([57dbd72](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/57dbd72ba0cbd8ff29074d86f1480703d1cba9b1))
 
 ### Fixed
 
-- Removed a duplicated word from `README.md`. ([09ead55](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/09ead55fef5d89f95d4ea444a206028a3539f5bb))
+- Remove a duplicated word from `README.md`. ([09ead55](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/commit/09ead55fef5d89f95d4ea444a206028a3539f5bb))
 
 ## [0.2.0] - 2022-11-29
 
 ### Added
 
-- Added support for [`axum 0.6`](https://tokio.rs/blog/2022-11-25-announcing-axum-0-6-0),
+- Add support for [`axum 0.6`](https://tokio.rs/blog/2022-11-25-announcing-axum-0-6-0),
   [`axum-core 0.3`](https://github.com/tokio-rs/axum/releases/tag/axum-core-v0.3.0)
   and [`axum-sessions 0.4`](https://github.com/maxcountryman/axum-sessions/releases/tag/v0.4.0).
 
 ### Changed
 
-- Shortened middleware and layer names to `CsrfMiddleware` and `CsrfLayer`
+- Shorten middleware and layer names to `CsrfMiddleware` and `CsrfLayer`
   for improved DX and more elegant code.
 
   **Migration:** If you prefer to keep on using the old name(s) in your code base,
@@ -90,56 +90,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   use axum_csrf_sync_pattern::CsrfMiddleware as CsrfSynchronizerTokenMiddleware;
   ```
 
-- Re-licensed the project under Mozilla Public License 2.0,
+- Re-license the project under Mozilla Public License 2.0,
   allowing for commercial use, while inciting contributions.
-- Updated `tokio` from 1.21 to [1.22](https://github.com/tokio-rs/tokio/releases/tag/tokio-1.22.0).
+- Update `tokio` from 1.21 to [1.22](https://github.com/tokio-rs/tokio/releases/tag/tokio-1.22.0).
 
 ### Removed
 
-- Removed support for `axum` 0.5, `axum-core` 0.2 and `axum-sessions` 0.3.
+- Remove support for `axum` 0.5, `axum-core` 0.2 and `axum-sessions` 0.3.
 
 ## [0.1.4] - 2022-11-29
 
 ### Added
 
-- Tested code coverage and added tests covering the error path.
-- Added `Cargo.toml` snippet for quick-installation to `README.md`.
-- Added `CsrfSynchronizerTokenMiddleware::layer()` for the sake of convention.
-- Added `CsrfSynchronizerTokenLayer::new()` for the sake of convention.
-- Now depending on the more stable `axum-core` where possible.
-- Now indicating project state with badges.
-- Added a `CHANGELOG.md`.
+- Test code coverage and add tests covering the error path.
+- Add `Cargo.toml` snippet for quick-installation to `README.md`.
+- Add `CsrfSynchronizerTokenMiddleware::layer()` for the sake of convention.
+- Add `CsrfSynchronizerTokenLayer::new()` for the sake of convention.
+- Depend on the more stable `axum-core` where possible.
+- Indicate project state with badges.
+- Add a `CHANGELOG.md`.
 
 ### Changed
 
-- Rewrote example / demo projects to never panic, but use appropriate error handling instead.
-- Removed direct dependency on `async-session`, using the re-export from `axum-sessions` instead.
+- Rewrite example / demo projects to never panic, but use appropriate error handling instead.
+- Remove direct dependency on `async-session`, using the re-export from `axum-sessions` instead.
 
 ## [0.1.3] - 2022-11-24
 
 ### Fixed
 
-- Properly linked demo URL to help users find the frontend address after `cargo run`.
+- Properly link demo URL to help users find the frontend address after `cargo run`.
 
 ## [0.1.2] - 2022-11-23
 
 ### Changed
 
-- Fixed code style.
+- Fix code style.
 
 ## [0.1.1] - 2022-11-23
 
 ### Changed
 
-- Simplified example code.
+- Simplify example code.
 
 ## [0.1.0] - 2022-11-23
 
 ### Added
 
-- Implemented CSRF Synchronizer Token Middleware and Layer.
+- Implement CSRF Synchronizer Token Middleware and Layer.
 - Example / demo projects for same-site and cross-site usage.
-- Added full crate documentation.
+- Add full crate documentation.
 
 <!-- next-url -->
 [Unreleased]: https://github.com/LeoniePhiline/basispoort-sync-client/compare/v0.3.2...HEAD
