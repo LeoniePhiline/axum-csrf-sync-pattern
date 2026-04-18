@@ -12,9 +12,6 @@ readme = "README.md"
 version = "0.3.2"
 edition = "2021"
 
-[badges]
-maintenance = { status = "actively-developed" }
-
 [dependencies]
 axum = "0.6.20"
 axum-core = "0.3.4"
@@ -29,3 +26,6 @@ tracing = "0.1.40"
 [dev-dependencies]
 tokio-test = "0.4.4"
 tower-http = { version = "0.4.4", features = ["cors"] }
+
+[badges]
+maintenance = { status = "actively-developed" }
