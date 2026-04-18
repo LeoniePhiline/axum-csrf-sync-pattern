@@ -36,7 +36,7 @@
 //! ## Security
 //! ### Token randomness
 //!
-//! The CSRF tokens are generated using [`rand::ThreadRng`](https://rust-random.github.io/rand/rand/rngs/struct.ThreadRng.html) which is considered cryptographically secure (CSPRNG).
+//! The CSRF tokens are generated using [`rand::rngs::ThreadRng`](https://docs.rs/rand/latest/rand/rngs/struct.ThreadRng.html) which is considered cryptographically secure (CSPRNG).
 //! See ["Our RNGs"](https://rust-random.github.io/book/guide-rngs.html#cryptographically-secure-pseudo-random-number-generators-csprngs) for more.
 //!
 //! ### Underlying session security
@@ -85,10 +85,10 @@
 //! };
 //! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use axum_sessions::{async_session::MemoryStore, SessionLayer};
-//! use rand::RngCore;
+//! use rand::Rng;
 //!
 //! let mut secret = [0; 64];
-//! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+//! rand::rng().fill_bytes(&mut secret);
 //!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
@@ -156,11 +156,11 @@
 //! };
 //! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
 //! use axum_sessions::{async_session::MemoryStore, SessionLayer};
-//! use rand::RngCore;
+//! use rand::Rng;
 //! use tower_http::cors::{AllowOrigin, CorsLayer};
 //!
 //! let mut secret = [0; 64];
-//! rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+//! rand::rng().fill_bytes(&mut secret);
 //!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
@@ -240,7 +240,7 @@ use axum::http::{self, HeaderValue, Request, StatusCode};
 use axum_core::response::{IntoResponse, Response};
 use axum_sessions::{async_session::Session, SessionHandle};
 use base64::prelude::*;
-use rand::RngCore;
+use rand::Rng;
 use tokio::sync::RwLockWriteGuard;
 use tower::Layer;
 
@@ -320,7 +320,7 @@ impl CsrfLayer {
         session_write: &mut RwLockWriteGuard<Session>,
     ) -> Result<String, Error> {
         let mut buf = [0; 32];
-        rand::thread_rng().try_fill_bytes(&mut buf)?;
+        rand::rng().fill_bytes(&mut buf);
         let token = BASE64_STANDARD.encode(buf);
         session_write.insert(self.session_key, &token)?;
 
@@ -379,9 +379,6 @@ pub enum RegenerateToken {
 
 #[derive(thiserror::Error, Debug)]
 enum Error {
-    #[error("Random number generator error")]
-    Rng(#[from] rand::Error),
-
     #[error("Serde JSON error")]
     Serde(#[from] axum_sessions::async_session::serde_json::Error),
 
@@ -561,7 +558,7 @@ mod tests {
 
     fn session_layer() -> SessionLayer<MemoryStore> {
         let mut secret = [0; 64];
-        rand::thread_rng().try_fill_bytes(&mut secret).unwrap();
+        rand::rng().fill_bytes(&mut secret);
         SessionLayer::new(MemoryStore::new(), &secret)
     }
 

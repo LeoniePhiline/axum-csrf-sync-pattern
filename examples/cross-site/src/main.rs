@@ -9,7 +9,7 @@ use axum::{
 use axum_csrf_sync_pattern::CsrfLayer;
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
-use rand::RngCore;
+use rand::Rng;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 #[tokio::main]
@@ -34,9 +34,7 @@ async fn main() -> eyre::Result<()> {
 
     let backend = async {
         let mut secret = [0; 64];
-        rand::thread_rng()
-            .try_fill_bytes(&mut secret)
-            .wrap_err("Failed to generate session seed.")?;
+        rand::rng().fill_bytes(&mut secret);
 
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
