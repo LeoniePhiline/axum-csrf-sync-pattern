@@ -7,7 +7,7 @@ use axum::{
 use axum_csrf_sync_pattern::CsrfLayer;
 use axum_sessions::{async_session::MemoryStore, SessionLayer};
 use color_eyre::eyre::{self, eyre, WrapErr};
-use rand::RngCore;
+use rand::Rng;
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -21,9 +21,7 @@ async fn main() -> eyre::Result<()> {
         .wrap_err("Failed to initialize tracing-subscriber.")?;
 
     let mut secret = [0; 64];
-    rand::thread_rng()
-        .try_fill_bytes(&mut secret)
-        .wrap_err("Failed to generate session seed.")?;
+    rand::rng().fill_bytes(&mut secret);
 
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
