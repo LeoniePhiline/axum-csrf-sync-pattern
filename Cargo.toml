@@ -10,7 +10,8 @@ license = "MPL-2.0"
 readme = "README.md"
 
 version = "0.3.2"
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
 
 [dependencies]
 axum = "0.6.20"

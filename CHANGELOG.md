@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Migrate to Rust Edition 2024. Minimum supported Rust version is now 1.85.
 - Update `rand` to 0.10.
 
 ## [0.3.2] - 2024-04-05
