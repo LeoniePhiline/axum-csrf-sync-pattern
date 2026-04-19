@@ -1,14 +1,14 @@
 use std::net::SocketAddr;
 
 use axum::{
-    http::{header, Method, StatusCode},
-    response::IntoResponse,
-    routing::{get, Router},
     Server,
+    http::{Method, StatusCode, header},
+    response::IntoResponse,
+    routing::{Router, get},
 };
 use axum_csrf_sync_pattern::CsrfLayer;
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
-use color_eyre::eyre::{self, eyre, WrapErr};
+use axum_sessions::{SessionLayer, async_session::MemoryStore};
+use color_eyre::eyre::{self, WrapErr, eyre};
 use rand::Rng;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 

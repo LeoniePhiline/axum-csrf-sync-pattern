@@ -1,12 +1,12 @@
 use axum::{
-    http::{header, StatusCode},
+    Server,
+    http::{StatusCode, header},
     response::IntoResponse,
     routing::get,
-    Server,
 };
 use axum_csrf_sync_pattern::CsrfLayer;
-use axum_sessions::{async_session::MemoryStore, SessionLayer};
-use color_eyre::eyre::{self, eyre, WrapErr};
+use axum_sessions::{SessionLayer, async_session::MemoryStore};
+use color_eyre::eyre::{self, WrapErr, eyre};
 use rand::Rng;
 
 #[tokio::main]
