@@ -238,7 +238,7 @@ use std::{
 
 use axum::http::{self, HeaderValue, Request, StatusCode};
 use axum_core::response::{IntoResponse, Response};
-use axum_sessions::{async_session::Session, SessionHandle};
+use axum_sessions::{SessionHandle, async_session::Session};
 use base64::prelude::*;
 use rand::Rng;
 use tokio::sync::RwLockWriteGuard;
@@ -382,7 +382,9 @@ enum Error {
     #[error("Serde JSON error")]
     Serde(#[from] axum_sessions::async_session::serde_json::Error),
 
-    #[error("Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?")]
+    #[error(
+        "Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?"
+    )]
     SessionLayerMissing,
 
     #[error("Incoming CSRF token header was not valid ASCII")]
@@ -498,7 +500,7 @@ where
                 let client_token = match client_token.to_str().map_err(Error::from) {
                     Ok(token) => token,
                     Err(error) => {
-                        return Ok(layer.response_with_token(error.into_response(), &server_token))
+                        return Ok(layer.response_with_token(error.into_response(), &server_token));
                     }
                 };
                 if client_token != server_token {
@@ -518,7 +520,7 @@ where
                 server_token = match layer.regenerate_token(&mut session_write) {
                     Ok(token) => token,
                     Err(error) => {
-                        return Ok(layer.response_with_token(error.into_response(), &server_token))
+                        return Ok(layer.response_with_token(error.into_response(), &server_token));
                     }
                 };
             }
@@ -537,12 +539,12 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use axum::{body::Body, routing::get, Router};
+    use axum::{Router, body::Body, routing::get};
     use axum_core::response::{IntoResponse, Response};
-    use axum_sessions::{async_session::MemoryStore, extractors::ReadableSession, SessionLayer};
+    use axum_sessions::{SessionLayer, async_session::MemoryStore, extractors::ReadableSession};
     use http::{
-        header::{COOKIE, SET_COOKIE},
         Method, Request, StatusCode,
+        header::{COOKIE, SET_COOKIE},
     };
     use tower::{Service, ServiceExt};
 
