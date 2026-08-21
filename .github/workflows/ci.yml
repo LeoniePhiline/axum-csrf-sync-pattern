@@ -70,9 +70,9 @@ jobs:
           command: test
           args: --doc --all-features
       - name: Install nextest
-        uses: taiki-e/install-action@d5f9268ff7620505a81ada10ddf18cdd72240185 # nextest
+        uses: taiki-e/install-action@37d0871ce760f1b574b572e72d1ddb6afe7c0585 # nextest
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@98d24199e2a0e4c9619770c16072327a813b72f0 # cargo-llvm-cov
+        uses: taiki-e/install-action@d88826bbe7e4a8c2cb8e6d0b2a078681e681afe5 # cargo-llvm-cov
       - name: Run tests with coverage
         run: cargo --locked llvm-cov nextest
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
