@@ -75,7 +75,7 @@ jobs:
         uses: taiki-e/install-action@27cdd3237bf9a6a2b668f3bcbfaa06949ae17deb # cargo-llvm-cov
       - name: Run tests with coverage
         run: cargo --locked llvm-cov nextest
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: success() || failure()
         with:
           name: junit.xml
