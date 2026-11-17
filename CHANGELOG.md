@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] <!-- release-date -->
 
+### Breaking
+
+- BREAKING: Replace `axum-sessions` by [`tower-sessions` 0.14](https://docs.rs/tower-sessions/0.14.0/tower_sessions/), and update `axum` to 0.8 ([#28](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/pull/28), by [@daly4](https://github.com/daly4)). Layer `tower_sessions::SessionManagerLayer` around the `CsrfLayer`.
+
 ### Changed
 
 - Migrate to Rust Edition 2024. Minimum supported Rust version is now 1.85.

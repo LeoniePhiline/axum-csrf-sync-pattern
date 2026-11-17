@@ -9,7 +9,7 @@
 //!
 //! This middleware implements token transfer via [custom request headers](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#use-of-custom-request-headers).
 //!
-//! The middleware requires and is built upon [`axum_sessions`](https://docs.rs/axum-sessions/), which in turn uses [`async_session`](https://docs.rs/async-session/).
+//! The middleware requires and is built upon [`tower_sessions`](https://docs.rs/tower-sessions/).
 //!
 //! The [Same Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) prevents the custom request header to be set by foreign scripts.
 //!
@@ -43,7 +43,6 @@
 //!
 //! The security of the underlying session is paramount - the CSRF prevention methods applied can only be as secure as the session carrying the server-side token.
 //!
-//! - When creating your [SessionLayer](https://docs.rs/axum-sessions/latest/axum_sessions/struct.SessionLayer.html), make sure to use at least 64 bytes of cryptographically secure randomness.
 //! - Do not lower the secure defaults: Keep the session cookie's `secure` flag **on**.
 //! - Use the strictest possible same-site policy.
 //!
@@ -79,16 +78,11 @@
 //!
 //! ```rust
 //! use axum::{
-//!     body::Body,
 //!     http::StatusCode,
 //!     routing::{get, Router},
 //! };
 //! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
-//! use axum_sessions::{async_session::MemoryStore, SessionLayer};
-//! use rand::Rng;
-//!
-//! let mut secret = [0; 64];
-//! rand::rng().fill_bytes(&mut secret);
+//! use tower_sessions::{MemoryStore, SessionManagerLayer};
 //!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
@@ -110,7 +104,7 @@
 //!         // Default: "_csrf_token"
 //!         .session_key("_custom_session_key")
 //!     )
-//!     .layer(SessionLayer::new(MemoryStore::new(), &secret));
+//!     .layer(SessionManagerLayer::new(MemoryStore::default()));
 //!
 //! // Use hyper to run `app` as service and expose on a local port or socket.
 //!
@@ -150,17 +144,12 @@
 //!
 //! ```rust
 //! use axum::{
-//!     body::Body,
 //!     http::{header, Method, StatusCode},
 //!     routing::{get, Router},
 //! };
-//! use axum_csrf_sync_pattern::{CsrfLayer, RegenerateToken};
-//! use axum_sessions::{async_session::MemoryStore, SessionLayer};
-//! use rand::Rng;
+//! use axum_csrf_sync_pattern::CsrfLayer;
 //! use tower_http::cors::{AllowOrigin, CorsLayer};
-//!
-//! let mut secret = [0; 64];
-//! rand::rng().fill_bytes(&mut secret);
+//! use tower_sessions::{MemoryStore, SessionManagerLayer};
 //!
 //! async fn handler() -> StatusCode {
 //!     StatusCode::OK
@@ -172,7 +161,7 @@
 //!         // See example above for custom layer configuration.
 //!         CsrfLayer::new()
 //!     )
-//!     .layer(SessionLayer::new(MemoryStore::new(), &secret))
+//!     .layer(SessionManagerLayer::new(MemoryStore::default()))
 //!     .layer(
 //!         CorsLayer::new()
 //!             .allow_origin(AllowOrigin::list(["https://www.example.com".parse().unwrap()]))
@@ -236,13 +225,14 @@ use std::{
     task::{Context, Poll},
 };
 
-use axum::http::{self, HeaderValue, Request, StatusCode};
-use axum_core::response::{IntoResponse, Response};
-use axum_sessions::{SessionHandle, async_session::Session};
+use axum::{
+    http::{self, HeaderValue, Request, StatusCode},
+    response::{IntoResponse, Response},
+};
 use base64::prelude::*;
 use rand::Rng;
-use tokio::sync::RwLockWriteGuard;
-use tower::Layer;
+use tower_layer::Layer;
+use tower_sessions::Session;
 
 /// Use `CsrfLayer::new()` to provide the middleware and configuration to axum's service stack.
 ///
@@ -315,14 +305,11 @@ impl CsrfLayer {
         self
     }
 
-    fn regenerate_token(
-        &self,
-        session_write: &mut RwLockWriteGuard<Session>,
-    ) -> Result<String, Error> {
+    async fn regenerate_token(&self, session: &Session) -> Result<String, Error> {
         let mut buf = [0; 32];
         rand::rng().fill_bytes(&mut buf);
         let token = BASE64_STANDARD.encode(buf);
-        session_write.insert(self.session_key, &token)?;
+        session.insert(self.session_key, &token).await?;
 
         Ok(token)
     }
@@ -379,11 +366,11 @@ pub enum RegenerateToken {
 
 #[derive(thiserror::Error, Debug)]
 enum Error {
-    #[error("Serde JSON error")]
-    Serde(#[from] axum_sessions::async_session::serde_json::Error),
+    #[error("Session error")]
+    Session(#[from] tower_sessions::session::Error),
 
     #[error(
-        "Session extension missing. Is `axum_sessions::SessionLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?"
+        "Session extension missing. Is `tower_sessions::SessionManagerLayer` installed and layered around the `axum_csrf_sync_pattern::CsrfLayer`?"
     )]
     SessionLayerMissing,
 
@@ -414,7 +401,7 @@ impl IntoResponse for Error {
 ///
 /// Make sure to expose this header in your CORS configuration if necessary!
 ///
-/// Requires and uses `axum_sessions`.
+/// Requires and uses `tower_sessions`.
 ///
 /// Optionally regenerates the token from the session after successful verification,
 /// to ensure a new token is used for each writing (`POST`, `PUT`, `DELETE`) request.
@@ -430,8 +417,8 @@ pub struct CsrfMiddleware<S> {
 }
 
 impl<S> CsrfMiddleware<S> {
-    /// Create a new middleware from an inner [`tower::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfLayer`].
-    /// Commonly, the middleware is created by the [`tower::Layer`] - and never manually.
+    /// Create a new middleware from an inner [`tower_service::Service`] (axum-specific bounds, such as `Infallible` errors apply!) and a [`CsrfLayer`].
+    /// Commonly, the middleware is created by the [`tower_layer::Layer`] - and never manually.
     pub fn new(inner: S, layer: CsrfLayer) -> Self {
         CsrfMiddleware { inner, layer }
     }
@@ -443,9 +430,12 @@ impl<S> CsrfMiddleware<S> {
     }
 }
 
-impl<S, B: Send + 'static> tower::Service<Request<B>> for CsrfMiddleware<S>
+impl<S, B: Send + 'static> tower_service::Service<Request<B>> for CsrfMiddleware<S>
 where
-    S: tower::Service<Request<B>, Response = Response, Error = Infallible> + Send + Clone + 'static,
+    S: tower_service::Service<Request<B>, Response = Response, Error = Infallible>
+        + Send
+        + Clone
+        + 'static,
     S::Future: Send,
 {
     type Response = S::Response;
@@ -462,24 +452,25 @@ where
         let mut inner = std::mem::replace(&mut self.inner, clone);
         let layer = self.layer;
         Box::pin(async move {
-            let session_handle = match req
+            let session = match req
                 .extensions()
-                .get::<SessionHandle>()
+                .get::<Session>()
+                .cloned()
                 .ok_or(Error::SessionLayerMissing)
             {
-                Ok(session_handle) => session_handle,
+                Ok(session) => session,
                 Err(error) => return Ok(error.into_response()),
             };
 
             // Extract the CSRF server side token from the session; create a new one if none has been set yet.
             // If the regeneration option is set to "per request", then regenerate the token even if present in the session.
-            let mut session_write = session_handle.write().await;
-            let mut server_token = match session_write.get::<String>(layer.session_key) {
-                Some(token) => token,
-                None => match layer.regenerate_token(&mut session_write) {
+            let mut server_token = match session.get::<String>(layer.session_key).await {
+                Ok(Some(token)) => token,
+                Ok(None) => match layer.regenerate_token(&session).await {
                     Ok(token) => token,
                     Err(error) => return Ok(error.into_response()),
                 },
+                Err(error) => return Ok(Error::from(error).into_response()),
             };
 
             if !req.method().is_safe() {
@@ -517,15 +508,13 @@ where
             if layer.regenerate_token == RegenerateToken::PerRequest
                 || (!req.method().is_safe() && layer.regenerate_token == RegenerateToken::PerUse)
             {
-                server_token = match layer.regenerate_token(&mut session_write) {
+                server_token = match layer.regenerate_token(&session).await {
                     Ok(token) => token,
                     Err(error) => {
                         return Ok(layer.response_with_token(error.into_response(), &server_token));
                     }
                 };
             }
-
-            drop(session_write);
 
             let response = inner.call(req).await.into_response();
 
@@ -539,14 +528,18 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use axum::{Router, body::Body, routing::get};
-    use axum_core::response::{IntoResponse, Response};
-    use axum_sessions::{SessionLayer, async_session::MemoryStore, extractors::ReadableSession};
+    use axum::{
+        Router,
+        body::Body,
+        response::{IntoResponse, Response},
+        routing::get,
+    };
     use http::{
         Method, Request, StatusCode,
         header::{COOKIE, SET_COOKIE},
     };
     use tower::{Service, ServiceExt};
+    use tower_sessions::{MemoryStore, SessionManagerLayer};
 
     use super::*;
 
@@ -558,10 +551,8 @@ mod tests {
             .into_response())
     }
 
-    fn session_layer() -> SessionLayer<MemoryStore> {
-        let mut secret = [0; 64];
-        rand::rng().fill_bytes(&mut secret);
-        SessionLayer::new(MemoryStore::new(), &secret)
+    fn session_layer() -> SessionManagerLayer<MemoryStore> {
+        SessionManagerLayer::new(MemoryStore::default())
     }
 
     fn app(csrf_layer: CsrfLayer) -> Router {
@@ -607,6 +598,7 @@ mod tests {
 
         // Get CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -627,6 +619,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -649,6 +642,7 @@ mod tests {
 
         // Attempt token re-use for a second POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -676,6 +670,7 @@ mod tests {
 
         // Get single-use CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -696,6 +691,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -718,6 +714,7 @@ mod tests {
 
         // Attempt token re-use for a second POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -745,6 +742,7 @@ mod tests {
 
         // Get single-use CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -765,6 +763,7 @@ mod tests {
 
         // Perform another GET request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -786,6 +785,7 @@ mod tests {
 
         // Attempt using single-request token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -813,6 +813,7 @@ mod tests {
 
         // Get CSRF token
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -830,6 +831,7 @@ mod tests {
 
         // Use CSRF token for POST request
         let response = app
+            .as_service()
             .ready()
             .await
             .unwrap()
@@ -868,8 +870,9 @@ mod tests {
     async fn uses_custom_session_key() {
         // Custom handler asserting the layer's configured session key is set,
         // and its value looks like a CSRF token.
-        async fn extract_session(session: ReadableSession) -> StatusCode {
-            let session_csrf_token: String = session.get("custom_session_key").unwrap();
+        async fn extract_session(session: Session) -> StatusCode {
+            let session_csrf_token: String =
+                session.get("custom_session_key").await.unwrap().unwrap();
 
             assert_eq!(
                 BASE64_STANDARD.decode(session_csrf_token).unwrap().len(),
@@ -910,7 +913,7 @@ mod tests {
         let layer = CsrfLayer::new();
         let response = Response::builder()
             .status(StatusCode::OK)
-            .body(axum::body::boxed(Body::empty()))
+            .body(Body::empty())
             .unwrap();
         let response = layer.response_with_token(response, "\n");
 
