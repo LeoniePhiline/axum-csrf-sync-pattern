@@ -5,7 +5,7 @@ use axum::{
     response::IntoResponse,
     routing::{Router, get},
 };
-use axum_csrf_sync_pattern::CsrfLayer;
+use axum_csrf_sync_pattern::{CsrfLayer, Key};
 use color_eyre::eyre::{self, WrapErr, eyre};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_sessions::{MemoryStore, SessionManagerLayer};
@@ -15,7 +15,8 @@ async fn main() -> eyre::Result<()> {
     color_eyre::install()?;
 
     // Use the "Send POST request without CSRF token" button in your browser,
-    // then check your console to find "WARN axum_csrf_sync_pattern: X-CSRF-TOKEN header missing!".
+    // then check your console to find "WARN axum_csrf_sync_pattern: Refused an unsafe request,
+    // because the request carries no `X-CSRF-TOKEN` header.".
     // The middleware uses tracing to log all error cases, including CSRF rejections.
     tracing_subscriber::fmt::try_init()
         .map_err(|e| eyre!(e))
@@ -33,7 +34,11 @@ async fn main() -> eyre::Result<()> {
     let backend = async {
         let app = Router::new()
             .route("/", get(get_token).post(post_handler))
-            .layer(CsrfLayer::new())
+            .layer(
+                // A generated key suits this single process: every restart invalidates all tokens.
+                // Load the key from your configuration with `Key::try_from` where that matters.
+                CsrfLayer::new(Key::generate()),
+            )
             .layer(SessionManagerLayer::new(MemoryStore::default()))
             .layer(
                 CorsLayer::new()

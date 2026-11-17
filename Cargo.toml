@@ -14,20 +14,27 @@ edition = "2024"
 rust-version = "1.85"
 
 [dependencies]
-axum = "0.8.9"
+axum-core = "0.5.6"
 base64 = "0.23.0"
+hmac = "0.13.0"
+http = "1.5.0"
 rand = "0.10.0"
+secrecy = "0.10.3"
+sha2 = "0.11.0"
 thiserror = "2.0.0"
 tower-layer = "0.3.3"
 tower-service = "0.3.3"
-tower-sessions = "0.14.0"
+tower-sessions-core = "0.14.0"
 tracing = "0.1.40"
 
 [dev-dependencies]
-tokio = { version = "1.37.0", features = ["macros", "rt", "rt-multi-thread"] }
+async-trait = "0.1.89"
+axum = "0.8.9"
+tokio = { version = "1.40.0", features = ["macros", "rt", "rt-multi-thread", "sync", "time"] }
 tokio-test = "0.4.4"
 tower = { version = "0.5.3", features = ["util"] }
 tower-http = { version = "0.7.1", features = ["cors"] }
+tower-sessions = "0.14.0"
 
 [badges]
 maintenance = { status = "actively-developed" }

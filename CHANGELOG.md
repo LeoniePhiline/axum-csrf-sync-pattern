@@ -12,6 +12,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
 
 - BREAKING: Replace `axum-sessions` by [`tower-sessions` 0.14](https://docs.rs/tower-sessions/0.14.0/tower_sessions/), and update `axum` to 0.8 ([#28](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/pull/28), by [@daly4](https://github.com/daly4)). Layer `tower_sessions::SessionManagerLayer` around the `CsrfLayer`.
+- BREAKING: Derive the token from the session ID with a secret key, instead of storing it in the session. The middleware never writes to an existing session, so concurrent requests of one session no longer invalidate each other's tokens. **Migration:**
+  - Pass a `Key` to `CsrfLayer::new`. Load it from your configuration with `Key::try_from`: at least 32 bytes, shared by all instances of the application. `Key::generate` suits a single process only, as every restart invalidates all tokens.
+  - Remove `CsrfLayer::regenerate` and `RegenerateToken`. **Warning:** `tower-sessions` offers no lock and no atomic store operation, so concurrent requests will most probably fail with any mode that rotates the token per use or per request; this release removes these modes. Bound the lifetime of a token with `CsrfLayer::max_age` instead.
+  - If you rely on `RegenerateToken::PerUse`, please [open a feature request](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/issues/new) describing your use case, so that a generation counter in the session can be considered, despite its lack of concurrency safety.
+  - The token is no longer stored in the session. The middleware writes only a marker into a new session, under `axum-csrf-sync-pattern.initialized` by default; every key the crate uses starts with `axum-csrf-sync-pattern.`.
+  - Sessions of `axum-sessions` do not carry over to `tower-sessions`. Tokens issued by earlier versions are refused once: clients receive `403 Forbidden` with a fresh token and a new session cookie, and retry.
+  - The crate depends on `axum-core`, `http` and `tower-sessions-core` 0.14 instead of `axum` and `tower-sessions`. Make sure your application resolves a single version of `tower-sessions-core`: `cargo tree --duplicates --package tower-sessions-core`.
+  - `CsrfMiddleware::layer` takes the key. `CsrfLayer` is no longer `Copy` and no longer implements `Default`.
+
+### Added
+
+- Rotate keys with `CsrfLayer::previous_key`.
+- Bound the lifetime of a token with `CsrfLayer::max_age`.
+
+### Fixed
+
+- Compare the provided token in constant time ([#87](https://github.com/LeoniePhiline/axum-csrf-sync-pattern/issues/87)).
 
 ### Changed
 
