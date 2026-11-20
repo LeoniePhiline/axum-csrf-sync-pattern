@@ -1,43 +1,40 @@
 use axum::{
-    Server,
     http::{StatusCode, header},
     response::IntoResponse,
     routing::get,
 };
-use axum_csrf_sync_pattern::CsrfLayer;
-use axum_sessions::{SessionLayer, async_session::MemoryStore};
+use axum_csrf_sync_pattern::{CsrfLayer, Key};
 use color_eyre::eyre::{self, WrapErr, eyre};
-use rand::Rng;
+use tower_sessions::{MemoryStore, SessionManagerLayer};
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     color_eyre::install()?;
 
     // Use the "Send POST request without CSRF token" button in your browser,
-    // then check your console to find "WARN axum_csrf_sync_pattern: X-CSRF-TOKEN header missing!".
+    // then check your console to find "WARN axum_csrf_sync_pattern: Refused an unsafe request,
+    // because the request carries no `X-CSRF-TOKEN` header.".
     // The middleware uses tracing to log all error cases, including CSRF rejections.
     tracing_subscriber::fmt::try_init()
         .map_err(|e| eyre!(e))
         .wrap_err("Failed to initialize tracing-subscriber.")?;
 
-    let mut secret = [0; 64];
-    rand::rng().fill_bytes(&mut secret);
-
     let app = axum::Router::new()
         .route("/", get(index).post(handler))
-        .layer(CsrfLayer::new())
-        .layer(SessionLayer::new(MemoryStore::new(), &secret));
+        .layer(
+            // A generated key suits this single process: every restart invalidates all tokens.
+            // Load the key from your configuration with `Key::try_from` where that matters.
+            CsrfLayer::new(Key::generate()),
+        )
+        .layer(SessionManagerLayer::new(MemoryStore::default()));
 
     // Visit "http://127.0.0.1:3000/" in your browser.
-    Server::try_bind(
-        &"0.0.0.0:3000"
-            .parse()
-            .wrap_err("Failed to parse socket address.")?,
-    )
-    .wrap_err("Could not bind to network address.")?
-    .serve(app.into_make_service())
-    .await
-    .wrap_err("Failed to serve the app.")?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+        .await
+        .wrap_err("Could not bind to network address.")?;
+    axum::serve(listener, app)
+        .await
+        .wrap_err("Failed to serve the app.")?;
 
     Ok(())
 }
